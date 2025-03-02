@@ -1,5 +1,5 @@
 {
-  "name": "@perses-dev/internal-utils",
+  "name": "@logz-dashboards/internal-utils",
   "version": "0.50.1",
   "private": true,
   "main": "src/index.ts",

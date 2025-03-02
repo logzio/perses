@@ -1,5 +1,5 @@
 {
-  "name": "@perses-dev/storybook",
+  "name": "@logz-dashboards/storybook",
   "version": "0.50.1",
   "private": true,
   "main": "src/index.js",

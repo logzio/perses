@@ -1,5 +1,5 @@
 {
-  "name": "@perses-dev/dashboards",
+  "name": "@logz-dashboards/dashboards",
   "version": "0.50.1",
   "description": "The dashboards feature in Perses",
   "license": "Apache-2.0",

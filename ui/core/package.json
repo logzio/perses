@@ -1,5 +1,5 @@
 {
-  "name": "@perses-dev/core",
+  "name": "@logz-dashboards/core",
   "version": "0.50.1",
   "description": "Core functionality consumed by both the Perses UI and plugins",
   "license": "Apache-2.0",

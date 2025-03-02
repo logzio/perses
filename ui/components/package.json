@@ -1,5 +1,5 @@
 {
-  "name": "@perses-dev/components",
+  "name": "@logz-dashboards/components",
   "version": "0.50.1",
   "description": "Common UI components used across Perses features",
   "license": "Apache-2.0",
