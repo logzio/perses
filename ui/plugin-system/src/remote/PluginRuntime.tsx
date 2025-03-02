@@ -72,15 +72,15 @@ export const pluginRuntime = init({
         requiredVersion: '^5.5.0',
       },
     },
-    '@perses-dev/components': {
+    '@logz-dashboards/components': {
       version: '0.50.0',
-      lib: () => require('@perses-dev/components'),
+      lib: () => require('@logz-dashboards/components'),
       shareConfig: {
         singleton: true,
         requiredVersion: '^0.50.0',
       },
     },
-    '@perses-dev/plugin-system': {
+    '@logz-dashboards/plugin-system': {
       version: '0.50.0',
       lib: () => require('@perses-dev/plugin-system'),
       shareConfig: {
@@ -88,17 +88,17 @@ export const pluginRuntime = init({
         requiredVersion: '^0.50.0',
       },
     },
-    '@perses-dev/explore': {
+    '@perses-dev/prometheus-plugin/explore': {
       version: '0.50.0',
-      lib: () => require('@perses-dev/explore'),
+      lib: () => require('@perses-dev/prometheus-plugin/explore'),
       shareConfig: {
         singleton: true,
         requiredVersion: '^0.50.0',
       },
     },
-    '@perses-dev/dashboards': {
+    '@perses-dev/prometheus-plugin/dashboards': {
       version: '0.50.0',
-      lib: () => require('@perses-dev/dashboards'),
+      lib: () => require('@perses-dev/prometheus-plugin/dashboards'),
       shareConfig: {
         singleton: true,
         requiredVersion: '^0.50.0',
