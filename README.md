@@ -21,7 +21,7 @@ Perses is first and foremost a dashboard tool that you can use to display a vari
 Perses is a [Cloud Native Computing Foundation](https://cncf.io) sandbox project.
 
 | ![img.png](https://github.com/perses/perses/assets/5657041/3bd8ae57-da7b-4447-9478-cefe19d61a71) | ![img.png](https://github.com/perses/perses/assets/5657041/ba46beab-c8fb-4583-bc2f-71c9893f7906) |
-|:------------------------------------------------------------------------------------------------:|:------------------------------------------------------------------------------------------------:|
+| :----------------------------------------------------------------------------------------------: | :----------------------------------------------------------------------------------------------: |
 
 Beyond its core usage, Perses aims to achieve several broader goals:
 
@@ -39,15 +39,15 @@ You can create your own project(s) and dashboard(s) there, no one else will be a
 ## Status
 
 1. Perses as an application can now **be used**.
-   * The data model reached a stable point, and we are providing multiple panel types that should cover most of the use cases
+   - The data model reached a stable point, and we are providing multiple panel types that should cover most of the use cases
      when using Prometheus.
-   * Authentication and authorization are available.
+   - Authentication and authorization are available.
 2. On the GitOps aspect:
-   * We provide a CLI that helps interacting with the API. A short doc is available [here](./docs/cli.md)
-   * Two SDKs (in Golang and in Cuelang) are available to code dashboards. See [Dashboard-as-Code](./docs/dac/getting-started.md) guide.
+   - We provide a CLI that helps interacting with the API. A short doc is available [here](./docs/cli.md)
+   - Two SDKs (in Golang and in Cuelang) are available to code dashboards. See [Dashboard-as-Code](./docs/dac/getting-started.md) guide.
      Probably these SDKs are going to evolve depending on the feedbacks we might receive. Still it's likely to be about adding more
      util functions rather than breaking things.
-3. *Work is in progress* Change the current plugin architecture to make it potentially simpler and above all to be able to
+3. _Work is in progress_ Change the current plugin architecture to make it potentially simpler and above all to be able to
    externalize the load and the implementation of a plugin.
 
 ## What's next
@@ -111,3 +111,5 @@ also includes details about the architecture and [guidelines](./ui/ui-guidelines
 ## License
 
 The code is licensed under an [Apache 2.0](./LICENSE) license.
+
+Gal the king
