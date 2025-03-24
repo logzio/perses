@@ -136,9 +136,9 @@ export const DashboardApp = (props: DashboardAppProps): ReactElement => {
             }}
           />
         </ErrorBoundary>
-        <ChartsProvider chartsTheme={chartsTheme} enablePinning={false}>
+        {/*<ChartsProvider chartsTheme={chartsTheme} enablePinning={false}>*/}
           <PanelDrawer />
-        </ChartsProvider>
+        {/*</ChartsProvider>*/}
         <PanelGroupDialog />
         <DeletePanelGroupDialog />
         <DeletePanelDialog />
