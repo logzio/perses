@@ -37,6 +37,7 @@ export interface ViewDashboardProps extends Omit<BoxProps, 'children'>, Dashboar
   isEditing?: boolean;
   isCreating?: boolean;
   dashboardStoreApiRef?: DashboardProviderProps['dashboardStoreApiRef'];
+  appRouter: any;
 }
 
 /**
@@ -60,6 +61,7 @@ export function ViewDashboard(props: ViewDashboardProps): ReactElement {
     sx,
     dashboardControlsComponent,
     dashboardStoreApiRef,
+    appRouter,
     ...others
   } = props;
   const { spec } = dashboardResource;
