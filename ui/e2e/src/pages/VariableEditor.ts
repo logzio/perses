@@ -92,7 +92,7 @@ export class VariableEditor {
   }
 
   async selectType(typeName: string): Promise<void> {
-    await selectMenuItem(this.container, 'Visualization type', typeName);
+    await selectMenuItem(this.container, 'Type', typeName);
   }
 
   async selectSource(source: string): Promise<void> {
