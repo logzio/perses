@@ -51,7 +51,7 @@ export class PanelEditor {
 
   async selectType(typeName: string): Promise<void> {
     // Use a regex for this selector to avoid also selecting "Group type"
-    await selectMenuItem(this.container, /^Type/, typeName);
+    await selectMenuItem(this.container, /^Visualization type/, typeName);
   }
 
   async selectGroup(groupName: string): Promise<void> {
