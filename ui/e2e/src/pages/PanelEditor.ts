@@ -32,7 +32,7 @@ export class PanelEditor {
     // LOGZ.IO CHANGE START:: Selector fix for panel editor - Apply and Add buttons [APPZ-400]
     this.addButton = container.getByRole('button', { name: 'Add panel', exact: true });
     this.applyButton = container.getByRole('button', { name: 'Apply panel', exact: true });
-    // LOGZ.IO CHANGE END:: Selector fix for panel editor - Apply and Add buttons [APPZ-400] 
+    // LOGZ.IO CHANGE END:: Selector fix for panel editor - Apply and Add buttons [APPZ-400]
     this.cancelButton = container.getByRole('button', { name: 'Cancel', exact: true });
   }
 
