@@ -29,9 +29,10 @@ export class PanelEditor {
 
     this.nameInput = container.getByLabel('Name').first();
     this.descriptionInput = container.getByLabel('Description');
-
+    // LOGZ.IO CHANGE START:: Selector fix for panel editor - Apply and Add buttons [APPZ-400]
     this.addButton = container.getByRole('button', { name: 'Add panel', exact: true });
     this.applyButton = container.getByRole('button', { name: 'Apply panel', exact: true });
+    // LOGZ.IO CHANGE END:: Selector fix for panel editor - Apply and Add buttons [APPZ-400] 
     this.cancelButton = container.getByRole('button', { name: 'Cancel', exact: true });
   }
 
@@ -51,7 +52,9 @@ export class PanelEditor {
 
   async selectType(typeName: string): Promise<void> {
     // Use a regex for this selector to avoid also selecting "Group type"
+    // LOGZ.IO CHANGE START:: Selector fix for panel editor - Type button [APPZ-400]
     await selectMenuItem(this.container, /^Visualization type/, typeName);
+    // LOGZ.IO CHANGE END:: Selector fix for panel editor - Type button [APPZ-400]
   }
 
   async selectGroup(groupName: string): Promise<void> {
