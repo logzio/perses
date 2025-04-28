@@ -52,6 +52,7 @@ export class PanelEditor {
 
   async selectType(typeName: string): Promise<void> {
     // Use a regex for this selector to avoid also selecting "Group type"
+    
     // LOGZ.IO CHANGE START:: Selector fix for panel editor - Type button [APPZ-400]
     await selectMenuItem(this.container, /^Visualization type/, typeName);
     // LOGZ.IO CHANGE END:: Selector fix for panel editor - Type button [APPZ-400]
