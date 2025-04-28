@@ -36,7 +36,7 @@ test.describe('Dashboard: Panels', () => {
     await dashboardPage.addPanel();
 
     // verify default panel type is Time Series Chart
-    await expect(dashboardPage.panelEditor.getByLabel(/^Type/)).toContainText('Time Series Chart');
+    await expect(dashboardPage.panelEditor.getByLabel(/^Visualization type/)).toContainText('Time Series Chart');
 
     await dashboardPage.addMarkdownPanel('Markdown One');
 
