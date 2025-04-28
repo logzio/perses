@@ -30,7 +30,7 @@ export class PanelEditor {
     this.nameInput = container.getByLabel('Name').first();
     this.descriptionInput = container.getByLabel('Description');
 
-    this.addButton = container.getByRole('button', { name: 'Add', exact: true });
+    this.addButton = container.getByRole('button', { name: 'Add panel', exact: true });
     this.applyButton = container.getByRole('button', { name: 'Apply', exact: true });
     this.cancelButton = container.getByRole('button', { name: 'Cancel', exact: true });
   }
