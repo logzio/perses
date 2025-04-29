@@ -35,7 +35,7 @@ export interface DashboardAppProps {
   dashboardResource: DashboardResource | EphemeralDashboardResource;
   dashboardTitleComponent?: JSX.Element;
   onSave?: OnSaveDashboard;
-  onDashboardChange?: (dashboard: DashboardResource) => void;
+  onDashboardChange?: (dashboard: DashboardResource) => void; // LOGZ.IO CHANGE:: Alert users when trying to navigate out of dashboard in edit mode that has changes [APPZ-316]
   onDiscard?: (entity: DashboardResource) => void;
   initialVariableIsSticky?: boolean;
   isReadonly: boolean;
@@ -58,7 +58,7 @@ export const DashboardApp = (props: DashboardAppProps): ReactElement => {
     isDatasourceEnabled,
     isCreating,
     dashboardControlsComponent,
-    onDashboardChange,
+    onDashboardChange, // LOGZ.IO CHANGE:: Alert users when trying to navigate out of dashboard in edit mode that has changes [APPZ-316]
   } = props;
 
   const chartsTheme = useChartsTheme();
@@ -85,9 +85,11 @@ export const DashboardApp = (props: DashboardAppProps): ReactElement => {
     }
   };
 
+  // LOGZ.IO CHANGE START:: Alert users when trying to navigate out of dashboard in edit mode that has changes [APPZ-316]
   useEffect(() => {
     onDashboardChange?.(dashboard as unknown as DashboardResource);
   }, [dashboard, onDashboardChange, originalDashboard]);
+  // LOGZ.IO CHANGE END:: Alert users when trying to navigate out of dashboard in edit mode that has changes [APPZ-316]
 
   const onEditButtonClick = (): void => {
     setEditMode(true);

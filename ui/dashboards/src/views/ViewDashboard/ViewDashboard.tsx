@@ -51,7 +51,7 @@ export function ViewDashboard(props: ViewDashboardProps): ReactElement {
     emptyDashboardProps,
     onSave,
     onDiscard,
-    onDashboardChange,
+    onDashboardChange, // LOGZ.IO CHANGE:: Alert users when trying to navigate out of dashboard in edit mode that has changes [APPZ-316]
     initialVariableIsSticky,
     isReadonly,
     isVariableEnabled,
@@ -143,7 +143,7 @@ export function ViewDashboard(props: ViewDashboardProps): ReactElement {
                   emptyDashboardProps={emptyDashboardProps}
                   onSave={onSave}
                   onDiscard={onDiscard}
-                  onDashboardChange={onDashboardChange}
+                  onDashboardChange={onDashboardChange} // LOGZ.IO CHANGE:: Alert users when trying to navigate out of dashboard in edit mode that has changes [APPZ-316]
                   initialVariableIsSticky={initialVariableIsSticky}
                   isReadonly={isReadonly}
                   isVariableEnabled={isVariableEnabled}

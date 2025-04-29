@@ -1,4 +1,4 @@
 # Description
 
 
-THIS IS PUBLIC REPO!!! Be careful with description!!!
+THIS IS A PUBLIC REPO!!! Be careful with description/titles and commit messages!!!
