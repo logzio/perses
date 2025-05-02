@@ -262,6 +262,8 @@ declare module '@tanstack/table-core' {
     align?: TableColumnConfig<TData>['align'];
     headerDescription?: TableColumnConfig<TData>['headerDescription'];
     cellDescription?: TableColumnConfig<TData>['cellDescription'];
+    openInNewTab?: TableColumnConfig<TData>['openInNewTab'];
+    urlTemplate?: TableColumnConfig<TData>['urlTemplate'];
   }
 }
 
@@ -319,6 +321,22 @@ export interface TableColumnConfig<TableData>
    * @default 'auto'
    */
   width?: number | 'auto';
+
+  /**
+   * A template string used to generate a URL for the column's cell values.
+   * The template can include placeholders that will be replaced with the
+   * corresponding cell data. For example, `{__cell}` in the template will be
+   * replaced with the value of the current cell.
+   */
+  urlTemplate?: string;
+
+  /**
+   * When set to `true`, the generated URL (from `urlTemplate`) will open in a
+   * new browser tab. If `false` or undefined, the URL will open in
+   * the same tab.
+   * @default false
+   */
+  openInNewTab?: boolean;
 }
 
 /**
@@ -328,7 +346,7 @@ export function persesColumnsToTanstackColumns<TableData>(
   columns: Array<TableColumnConfig<TableData>>
 ): Array<ColumnDef<TableData>> {
   const tableCols: Array<ColumnDef<TableData>> = columns.map(
-    ({ width, align, headerDescription, cellDescription, enableSorting, ...otherProps }) => {
+    ({ width, align, headerDescription, cellDescription, enableSorting, urlTemplate, openInNewTab, ...otherProps }) => {
       // Tanstack Table does not support an "auto" value to naturally size to fit
       // the space in a table. We translate our custom "auto" setting to 0 size
       // for these columns, so it is easy to fall back to auto when rendering.
@@ -360,6 +378,8 @@ export function persesColumnsToTanstackColumns<TableData>(
           align,
           headerDescription,
           cellDescription,
+          urlTemplate,
+          openInNewTab,
         },
       };
 
