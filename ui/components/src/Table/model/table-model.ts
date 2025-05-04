@@ -266,6 +266,24 @@ declare module '@tanstack/table-core' {
   }
 }
 
+interface LinkConfig {
+  /**
+   * A template string used to generate a URL for the column's cell values.
+   * The template can include placeholders that will be replaced with the
+   * corresponding cell data. For example, `{__value.text}` in the template will be
+   * replaced with the value of the current cell.
+   */
+  urlTemplate?: string;
+
+  /**
+   * When set to `true`, the generated URL (from `urlTemplate`) will open in a
+   * new browser tab. If `false` or undefined, the URL will open in
+   * the same tab.
+   * @default false
+   */
+  openInNewTab?: boolean;
+}
+
 // Only exposing a very simplified version of the very extensive column definitions
 // possible with tanstack table to make it easier for us to control rendering
 // and functionality.
@@ -321,23 +339,11 @@ export interface TableColumnConfig<TableData>
    */
   width?: number | 'auto';
 
-  linkConfig?: {
-    /**
-     * A template string used to generate a URL for the column's cell values.
-     * The template can include placeholders that will be replaced with the
-     * corresponding cell data. For example, `{__value.text}` in the template will be
-     * replaced with the value of the current cell.
-     */
-    urlTemplate?: string;
-
-    /**
-     * When set to `true`, the generated URL (from `urlTemplate`) will open in a
-     * new browser tab. If `false` or undefined, the URL will open in
-     * the same tab.
-     * @default false
-     */
-    openInNewTab?: boolean;
-  };
+  /**
+   * Configuration for turning cell values into clickable links.
+   * Use URL templates with placeholders to create dynamic links based on cell data.
+   */
+  linkConfig?: LinkConfig;
 }
 
 /**
