@@ -230,8 +230,8 @@ export function VirtualizedTable<TableData>({
                 const cellRenderFn = cell.column.columnDef.cell;
                 const cellContent = typeof cellRenderFn === 'function' ? cellRenderFn(cellContext) : null;
 
-                const cellURLTemplate = cell.column.columnDef.meta?.urlTemplate;
-                const openInNewTab = cell.column.columnDef.meta?.openInNewTab;
+                const cellURLTemplate = cell.column.columnDef.meta?.linkConfig?.urlTemplate;
+                const openInNewTab = cell.column.columnDef.meta?.linkConfig?.openInNewTab;
 
                 const link = replaceCellVariables(cellURLTemplate, cell.column.id, cellContent, row.original);
 

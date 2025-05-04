@@ -11,6 +11,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import { isNil } from 'lodash';
+
 /* eslint-disable */
 export const replaceCellVariables = (
   urlTemplate: string | undefined,
@@ -33,7 +35,7 @@ export const replaceCellVariables = (
       let current = rowData;
 
       for (const part of parts) {
-        if (current === undefined || current === null) {
+        if (isNil(current)) {
           return '';
         }
         current = current[part];
