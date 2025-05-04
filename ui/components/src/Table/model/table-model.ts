@@ -325,7 +325,7 @@ export interface TableColumnConfig<TableData>
   /**
    * A template string used to generate a URL for the column's cell values.
    * The template can include placeholders that will be replaced with the
-   * corresponding cell data. For example, `{__cell}` in the template will be
+   * corresponding cell data. For example, `{__value.text}` in the template will be
    * replaced with the value of the current cell.
    */
   urlTemplate?: string;
