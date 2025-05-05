@@ -46,4 +46,6 @@ export interface TimeSeriesMetadata {
    * after variables and other context modifications have been applied.
    */
   executedQueryString?: string;
+
+  [key: string]: unknown;
 }

@@ -12,7 +12,7 @@
 // limitations under the License.
 
 import { useEffect, useState } from 'react';
-import { NearbySeriesArray } from './nearby-series';
+import { NearbySeriesArray, NearbySeriesInfo } from './nearby-series';
 
 export const TOOLTIP_MIN_WIDTH = 375;
 export const TOOLTIP_MAX_WIDTH = 650;
@@ -149,6 +149,12 @@ export const useMousePosition = (): CursorData['coords'] => {
   }, []);
 
   return coords;
+};
+
+export type PointAction = {
+  label: string;
+  onClick: (point: NearbySeriesInfo) => void;
+  icon?: React.JSX.Element;
 };
 
 export type TooltipConfig = {
