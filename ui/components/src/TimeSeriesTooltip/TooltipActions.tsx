@@ -13,7 +13,13 @@
 
 import { Box, Icon, MenuItem, Stack, Typography } from '@mui/material';
 import Magnify from 'mdi-material-ui/Magnify';
-import { PointAction, TOOLTIP_BG_COLOR_FALLBACK, TOOLTIP_MAX_WIDTH } from './tooltip-model';
+import {
+  DRILLDOWN_HELP_TEXT,
+  PointAction,
+  SELECT_SERIES_HELP_TEXT,
+  TOOLTIP_BG_COLOR_FALLBACK,
+  TOOLTIP_MAX_WIDTH,
+} from './tooltip-model';
 import { NearbySeriesInfo } from './nearby-series';
 
 export interface TooltipActionProps {
@@ -46,7 +52,7 @@ export const TooltipActions: React.FC<TooltipActionProps> = ({ actions, selected
             color: theme.palette.text.primary,
           })}
         >
-          <Typography fontSize={12}>Click To Drilldown</Typography>
+          <Typography fontSize={12}>{DRILLDOWN_HELP_TEXT}</Typography>
           <Icon>
             <Magnify />
           </Icon>
@@ -62,7 +68,7 @@ export const TooltipActions: React.FC<TooltipActionProps> = ({ actions, selected
             color: theme.palette.text.primary,
           })}
         >
-          <Typography fontSize="12">Select one series to drilldown</Typography>
+          <Typography fontSize="12">{SELECT_SERIES_HELP_TEXT}</Typography>
           <Icon>
             <Magnify />
           </Icon>

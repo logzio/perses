@@ -23,8 +23,8 @@ export interface SeriesInfoProps {
   formattedY: string;
   markerColor: string;
   totalSeries: number;
-  isSelected: boolean;
-  isSelectable: boolean;
+  isSelected?: boolean;
+  isSelectable?: boolean;
   emphasizeText?: boolean;
   wrapLabels?: boolean;
   onSelected?: () => void;

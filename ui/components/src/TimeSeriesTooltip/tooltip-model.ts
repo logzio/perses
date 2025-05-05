@@ -168,6 +168,6 @@ export const DEFAULT_TOOLTIP_CONFIG: TooltipConfig = {
   enablePinning: true,
 };
 
-export const PIN_TOOLTIP_HELP_TEXT = 'Click chart to pin';
+export const DRILLDOWN_HELP_TEXT = 'Click To Drilldown';
 
-export const UNPIN_TOOLTIP_HELP_TEXT = 'Click chart to unpin';
+export const SELECT_SERIES_HELP_TEXT = 'Select a series to drilldown';
