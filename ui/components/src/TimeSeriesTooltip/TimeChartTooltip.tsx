@@ -95,7 +95,13 @@ export const TimeChartTooltip = memo(function TimeChartTooltip({
   if (hasPointMenuItems && !isTooltipPinned) {
     const hasOneSeries = nearbySeries.length === 1;
     const firstSeriesClosestToCursor = nearbySeries.find((series) => series.isClosestToCursor);
-    const nextSelectedSeriesIdx = firstSeriesClosestToCursor?.seriesIdx ?? (hasOneSeries ? 0 : null);
+    let nextSelectedSeriesIdx: number | null = hasOneSeries ? 0 : null;
+
+    if (firstSeriesClosestToCursor) {
+      nextSelectedSeriesIdx =
+        (firstSeriesClosestToCursor.metadata?.isSelectable ?? true) ? firstSeriesClosestToCursor.seriesIdx : null;
+    }
+
     if (nextSelectedSeriesIdx !== selectedSeriesIdx) {
       setSelectedSeriesIdx(nextSelectedSeriesIdx);
     }

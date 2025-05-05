@@ -24,6 +24,7 @@ export interface SeriesInfoProps {
   markerColor: string;
   totalSeries: number;
   isSelected: boolean;
+  isSelectable: boolean;
   emphasizeText?: boolean;
   wrapLabels?: boolean;
   onSelected?: () => void;
@@ -38,6 +39,7 @@ export function SeriesInfo(props: SeriesInfoProps): ReactElement {
     emphasizeText = false,
     wrapLabels = true,
     isSelected,
+    isSelectable,
     onSelected,
   } = props;
 
@@ -69,7 +71,7 @@ export function SeriesInfo(props: SeriesInfoProps): ReactElement {
 
   return (
     <Box
-      onClick={onSelected}
+      onClick={isSelectable ? onSelected : undefined}
       sx={(theme) => ({
         display: 'flex',
         justifyContent: 'space-between',
@@ -77,11 +79,11 @@ export function SeriesInfo(props: SeriesInfoProps): ReactElement {
         borderRadius: 1,
         paddingTop: 0.5,
         background: isSelected ? theme.palette.grey['100'] : undefined,
-        cursor: onSelected ? 'pointer' : 'default',
+        cursor: onSelected && isSelectable ? 'pointer' : 'default',
         transition: 'background 0.2s ease-in-out',
 
         ':hover': {
-          background: onSelected ? theme.palette.grey['200'] : undefined,
+          background: isSelectable && onSelected ? theme.palette.grey['200'] : undefined,
         },
       })}
     >

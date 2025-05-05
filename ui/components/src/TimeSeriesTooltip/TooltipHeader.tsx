@@ -50,11 +50,12 @@ export const TooltipHeader = memo(function TooltipHeader({
           variant="caption"
           sx={(theme) => ({
             color: theme.palette.text.primary,
+            fontSize: 12,
           })}
         >
           {formattedDate}
         </Typography>
-        <Typography variant="caption">
+        <Typography fontSize={12} variant="caption">
           <strong>{formattedTime}</strong>
         </Typography>
       </Box>

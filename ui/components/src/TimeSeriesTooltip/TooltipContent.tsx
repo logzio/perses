@@ -45,7 +45,7 @@ export function TooltipContent(props: TooltipContentProps): ReactElement | null 
       })}
     >
       {sortedFocusedSeries.map(
-        ({ datumIdx, seriesIdx, seriesName, y, formattedY, markerColor, isClosestToCursor, isSelected }) => {
+        ({ datumIdx, seriesIdx, seriesName, y, formattedY, markerColor, isClosestToCursor, isSelected, metadata }) => {
           if (datumIdx === null || seriesIdx === null) return null;
           const key = seriesIdx.toString() + datumIdx.toString();
 
@@ -60,6 +60,7 @@ export function TooltipContent(props: TooltipContentProps): ReactElement | null 
               wrapLabels={wrapLabels}
               emphasizeText={isClosestToCursor}
               isSelected={isSelected}
+              isSelectable={metadata?.isSelectable ?? true}
               onSelected={onSelected ? (): void => onSelected(seriesIdx) : undefined}
             />
           );

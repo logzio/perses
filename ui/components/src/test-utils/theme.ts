@@ -43,5 +43,5 @@ export const mockChartsContext: SharedChartsState = {
   enablePinning: false,
   lastTooltipPinnedCoords: null,
   setLastTooltipPinnedCoords: () => null,
-  pointMenuItems: [],
+  pointActions: [],
 };

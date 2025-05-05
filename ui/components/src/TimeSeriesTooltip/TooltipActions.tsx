@@ -15,7 +15,7 @@ export const TooltipActions: React.FC<TooltipActionProps> = ({ actions, selected
       sx={(theme) => ({
         width: '100%',
         maxWidth: TOOLTIP_MAX_WIDTH,
-        padding: theme.spacing(0, 1),
+        padding: theme.spacing(0.5, 1),
         backgroundColor: theme.palette.common.white ?? TOOLTIP_BG_COLOR_FALLBACK,
         position: 'sticky',
         top: 0,
@@ -33,7 +33,7 @@ export const TooltipActions: React.FC<TooltipActionProps> = ({ actions, selected
             color: theme.palette.text.primary,
           })}
         >
-          <Typography>Click To Drilldown</Typography>
+          <Typography fontSize={12}>Click To Drilldown</Typography>
           <Icon>
             <Magnify />
           </Icon>
@@ -49,7 +49,10 @@ export const TooltipActions: React.FC<TooltipActionProps> = ({ actions, selected
             color: theme.palette.text.primary,
           })}
         >
-          <Typography fontSize="11">Select one series to drilldown</Typography>
+          <Typography fontSize="12">Select one series to drilldown</Typography>
+          <Icon>
+            <Magnify />
+          </Icon>
         </Box>
       ) : (
         <Stack my={0.5}>
@@ -71,13 +74,13 @@ export const TooltipActions: React.FC<TooltipActionProps> = ({ actions, selected
                     display: 'flex',
                     alignItems: 'center',
                     width: '100%',
-                    padding: theme.spacing(0.5, 1.5),
+                    padding: theme.spacing(0.5, 1),
                     gap: 1,
                     height: 32,
                   })}
                 >
                   {action.icon && action.icon}
-                  <Typography>{action.label}</Typography>
+                  <Typography fontSize="12px">{action.label}</Typography>
                 </Box>
               </MenuItem>
             );

@@ -47,5 +47,12 @@ export interface TimeSeriesMetadata {
    */
   executedQueryString?: string;
 
+  /**
+   * Defines if the series is selectable for tooltip actions
+   *
+   * Default is `true`
+   */
+  isSelectable?: boolean;
+
   [key: string]: unknown;
 }

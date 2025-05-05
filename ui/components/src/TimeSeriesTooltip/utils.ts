@@ -109,6 +109,7 @@ export function getTooltipStyles(
     opacity: 1,
     transition: 'all 0.1s ease-out',
     border: `1px solid ${theme.palette.grey['200']}`,
+    boxShadow: theme.shadows[4],
     // Ensure pinned tooltip shows behind edit panel drawer and sticky header
     zIndex: pinnedPos !== null ? 'auto' : theme.zIndex.tooltip,
     overflow: 'hidden',
