@@ -462,6 +462,16 @@ function createVariableDefinitionStore({
       }))
     )
   );
+  // LOGZ.IO CHANGE::DEV-48732 send perses state to app
+  const EVENTNAME = 'perses variable store update';
+  store.subscribe((state) => {
+    dispatchEvent(
+      new CustomEvent<typeof state>(EVENTNAME, {
+        detail: state,
+      })
+    );
+  });
+  // LOGZ.IO CHANGE::DEV-48732 send perses state to app - end
 
   return store as unknown as StoreApi<VariableDefinitionStore>; // TODO: @Gladorme check if we can avoid this cast
 }
