@@ -197,6 +197,16 @@ function initStore(props: DashboardProviderProps): StoreApi<DashboardStoreState>
       })
     )
   );
+  // LOGZ.IO CHANGE::DEV-48732 send perses state to app
+  const EVENTNAME = 'perses dashboard store update';
+  store.subscribe((state) => {
+    dispatchEvent(
+      new CustomEvent<typeof state>(EVENTNAME, {
+        detail: state,
+      })
+    );
+  });
+  // LOGZ.IO CHANGE::DEV-48732 send perses state to app - end
 
   return store;
 }
