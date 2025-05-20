@@ -44,5 +44,5 @@ export const mockChartsContext: SharedChartsState = {
   lastTooltipPinnedCoords: null,
   setLastTooltipPinnedCoords: () => null,
   pointActions: [],
-  enableSyncGrouping: true,
+  enableSyncGrouping: true, // LOGZ.IO CHANGE:: Shared tooltip in edit panel bug-fix [APPZ-498]
 };

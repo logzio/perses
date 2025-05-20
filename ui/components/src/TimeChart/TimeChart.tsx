@@ -114,7 +114,7 @@ export const TimeChart = forwardRef<ChartInstance, TimeChartProps>(function Time
     lastTooltipPinnedCoords,
     setLastTooltipPinnedCoords,
     pointActions,
-    enableSyncGrouping,
+    enableSyncGrouping, // LOGZ.IO CHANGE:: Shared tooltip in edit panel bug-fix [APPZ-498]
   } = useChartsContext();
   const isPinningEnabled = tooltipConfig.enablePinning && enablePinning;
   const chartRef = useRef<EChartsInstance>();
@@ -455,7 +455,7 @@ export const TimeChart = forwardRef<ChartInstance, TimeChartProps>(function Time
         theme={chartsTheme.echartsTheme}
         onEvents={handleEvents}
         _instance={chartRef}
-        syncGroup={enableSyncGrouping ? syncGroup : undefined}
+        syncGroup={enableSyncGrouping ? syncGroup : undefined} // LOGZ.IO CHANGE:: Shared tooltip in edit panel bug-fix [APPZ-498]
       />
     </Box>
   );

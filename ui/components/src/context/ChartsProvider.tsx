@@ -18,7 +18,7 @@ import { CursorCoordinates, PointAction } from '../TimeSeriesTooltip';
 export interface ChartsProviderProps {
   chartsTheme: PersesChartsTheme;
   enablePinning?: boolean;
-  enableSyncGrouping?: boolean;
+  enableSyncGrouping?: boolean; // LOGZ.IO CHANGE:: Shared tooltip in edit panel bug-fix [APPZ-498]
   children?: React.ReactNode;
   pointActions?: PointAction[];
 }
@@ -26,14 +26,20 @@ export interface ChartsProviderProps {
 export interface SharedChartsState {
   chartsTheme: PersesChartsTheme;
   enablePinning: boolean;
-  enableSyncGrouping: boolean;
+  enableSyncGrouping: boolean; // LOGZ.IO CHANGE:: Shared tooltip in edit panel bug-fix [APPZ-498]
   lastTooltipPinnedCoords: CursorCoordinates | null;
   setLastTooltipPinnedCoords: (lastTooltipPinnedCoords: CursorCoordinates | null) => void;
   pointActions: PointAction[];
 }
 
 export function ChartsProvider(props: ChartsProviderProps): ReactElement {
-  const { children, chartsTheme, enablePinning = false, pointActions = [], enableSyncGrouping = true } = props;
+  const {
+    children,
+    chartsTheme,
+    enablePinning = false,
+    pointActions = [],
+    enableSyncGrouping = true, // LOGZ.IO CHANGE:: Shared tooltip in edit panel bug-fix [APPZ-498]
+  } = props;
 
   const [lastTooltipPinnedCoords, setLastTooltipPinnedCoords] = useState<CursorCoordinates | null>(null);
 
@@ -44,7 +50,7 @@ export function ChartsProvider(props: ChartsProviderProps): ReactElement {
       lastTooltipPinnedCoords,
       setLastTooltipPinnedCoords,
       pointActions,
-      enableSyncGrouping,
+      enableSyncGrouping, // LOGZ.IO CHANGE:: Shared tooltip in edit panel bug-fix [APPZ-498]
     };
   }, [
     chartsTheme,
@@ -52,7 +58,7 @@ export function ChartsProvider(props: ChartsProviderProps): ReactElement {
     lastTooltipPinnedCoords,
     setLastTooltipPinnedCoords,
     pointActions,
-    enableSyncGrouping,
+    enableSyncGrouping, // LOGZ.IO CHANGE:: Shared tooltip in edit panel bug-fix [APPZ-498]
   ]);
 
   return <ChartsThemeContext.Provider value={ctx}>{children}</ChartsThemeContext.Provider>;
