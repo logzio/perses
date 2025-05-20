@@ -29,7 +29,7 @@ export interface SharedChartsState {
   enableSyncGrouping: boolean; // LOGZ.IO CHANGE:: Shared tooltip in edit panel bug-fix [APPZ-498]
   lastTooltipPinnedCoords: CursorCoordinates | null;
   setLastTooltipPinnedCoords: (lastTooltipPinnedCoords: CursorCoordinates | null) => void;
-  pointActions: PointAction[];
+  pointActions: PointAction[]; // LOGZ.IO CHANGE:: Drilldown panel [APPZ-377]
 }
 
 export function ChartsProvider(props: ChartsProviderProps): ReactElement {
@@ -37,7 +37,7 @@ export function ChartsProvider(props: ChartsProviderProps): ReactElement {
     children,
     chartsTheme,
     enablePinning = false,
-    pointActions = [],
+    pointActions = [], // LOGZ.IO CHANGE:: Drilldown panel [APPZ-377]
     enableSyncGrouping = true, // LOGZ.IO CHANGE:: Shared tooltip in edit panel bug-fix [APPZ-498]
   } = props;
 
@@ -49,7 +49,7 @@ export function ChartsProvider(props: ChartsProviderProps): ReactElement {
       enablePinning,
       lastTooltipPinnedCoords,
       setLastTooltipPinnedCoords,
-      pointActions,
+      pointActions, // LOGZ.IO CHANGE:: Drilldown panel [APPZ-377]
       enableSyncGrouping, // LOGZ.IO CHANGE:: Shared tooltip in edit panel bug-fix [APPZ-498]
     };
   }, [
@@ -57,7 +57,7 @@ export function ChartsProvider(props: ChartsProviderProps): ReactElement {
     enablePinning,
     lastTooltipPinnedCoords,
     setLastTooltipPinnedCoords,
-    pointActions,
+    pointActions, // LOGZ.IO CHANGE:: Drilldown panel [APPZ-377]
     enableSyncGrouping, // LOGZ.IO CHANGE:: Shared tooltip in edit panel bug-fix [APPZ-498]
   ]);
 

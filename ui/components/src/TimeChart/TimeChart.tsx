@@ -85,7 +85,7 @@ export interface TimeChartProps {
   onDataZoom?: (e: ZoomEventData) => void;
   onDoubleClick?: (e: MouseEvent) => void;
   __experimentalEChartsOptionsOverride?: (options: EChartsCoreOption) => EChartsCoreOption;
-  seriesMetadata?: TimeSeriesMetadata[];
+  seriesMetadata?: TimeSeriesMetadata[]; // LOGZ.IO CHANGE:: Drilldown panel [APPZ-377]
 }
 
 export const TimeChart = forwardRef<ChartInstance, TimeChartProps>(function TimeChart(
@@ -104,7 +104,7 @@ export const TimeChart = forwardRef<ChartInstance, TimeChartProps>(function Time
     onDataZoom,
     onDoubleClick,
     __experimentalEChartsOptionsOverride,
-    seriesMetadata,
+    seriesMetadata, // LOGZ.IO CHANGE:: Drilldown panel [APPZ-377]
   },
   ref
 ) {
@@ -113,7 +113,7 @@ export const TimeChart = forwardRef<ChartInstance, TimeChartProps>(function Time
     enablePinning,
     lastTooltipPinnedCoords,
     setLastTooltipPinnedCoords,
-    pointActions,
+    pointActions, // LOGZ.IO CHANGE:: Drilldown panel [APPZ-377]
     enableSyncGrouping, // LOGZ.IO CHANGE:: Shared tooltip in edit panel bug-fix [APPZ-498]
   } = useChartsContext();
   const isPinningEnabled = tooltipConfig.enablePinning && enablePinning;
@@ -432,12 +432,12 @@ export const TimeChart = forwardRef<ChartInstance, TimeChartProps>(function Time
             chartRef={chartRef}
             data={data}
             seriesMapping={seriesMapping}
-            seriesMetadata={seriesMetadata}
+            seriesMetadata={seriesMetadata} // LOGZ.IO CHANGE:: Drilldown panel [APPZ-377]
             wrapLabels={tooltipConfig.wrapLabels}
             enablePinning={isPinningEnabled}
             pinnedPos={tooltipPinnedCoords}
             format={format}
-            pointActions={pointActions}
+            pointActions={pointActions} // LOGZ.IO CHANGE:: Drilldown panel [APPZ-377]
             onUnpinClick={() => {
               // Unpins tooltip when clicking Pin icon in TooltipHeader.
               setTooltipPinnedCoords(null);
