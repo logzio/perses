@@ -18,6 +18,7 @@ import { CursorCoordinates, PointAction } from '../TimeSeriesTooltip';
 export interface ChartsProviderProps {
   chartsTheme: PersesChartsTheme;
   enablePinning?: boolean;
+  enableSyncGrouping?: boolean;
   children?: React.ReactNode;
   pointActions?: PointAction[];
 }
@@ -25,13 +26,14 @@ export interface ChartsProviderProps {
 export interface SharedChartsState {
   chartsTheme: PersesChartsTheme;
   enablePinning: boolean;
+  enableSyncGrouping: boolean;
   lastTooltipPinnedCoords: CursorCoordinates | null;
   setLastTooltipPinnedCoords: (lastTooltipPinnedCoords: CursorCoordinates | null) => void;
   pointActions: PointAction[];
 }
 
 export function ChartsProvider(props: ChartsProviderProps): ReactElement {
-  const { children, chartsTheme, enablePinning = false, pointActions = [] } = props;
+  const { children, chartsTheme, enablePinning = false, pointActions = [], enableSyncGrouping = true } = props;
 
   const [lastTooltipPinnedCoords, setLastTooltipPinnedCoords] = useState<CursorCoordinates | null>(null);
 
@@ -42,8 +44,16 @@ export function ChartsProvider(props: ChartsProviderProps): ReactElement {
       lastTooltipPinnedCoords,
       setLastTooltipPinnedCoords,
       pointActions,
+      enableSyncGrouping,
     };
-  }, [chartsTheme, enablePinning, lastTooltipPinnedCoords, setLastTooltipPinnedCoords, pointActions]);
+  }, [
+    chartsTheme,
+    enablePinning,
+    lastTooltipPinnedCoords,
+    setLastTooltipPinnedCoords,
+    pointActions,
+    enableSyncGrouping,
+  ]);
 
   return <ChartsThemeContext.Provider value={ctx}>{children}</ChartsThemeContext.Provider>;
 }

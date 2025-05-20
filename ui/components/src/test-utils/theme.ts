@@ -44,4 +44,5 @@ export const mockChartsContext: SharedChartsState = {
   lastTooltipPinnedCoords: null,
   setLastTooltipPinnedCoords: () => null,
   pointActions: [],
+  enableSyncGrouping: true,
 };
