@@ -12,7 +12,7 @@
 // limitations under the License.
 
 import { createContext, useContext, useMemo } from 'react';
-import { VariableValue } from '@perses-dev/core';
+import { ListVariableSpec, TextVariableSpec, VariableValue } from '@perses-dev/core';
 import { immerable } from 'immer';
 import { VariableOption } from '../model';
 import { parseVariables, replaceVariables } from '../utils';
@@ -32,7 +32,7 @@ export type VariableState = {
    */
   overridden?: boolean;
   defaultValue?: VariableValue;
-  spec: any;
+  spec: ListVariableSpec | TextVariableSpec;
 };
 
 export type VariableStateMap = Record<string, VariableState>;
