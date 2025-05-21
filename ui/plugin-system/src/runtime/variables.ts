@@ -32,6 +32,7 @@ export type VariableState = {
    */
   overridden?: boolean;
   defaultValue?: VariableValue;
+  spec: any;
 };
 
 export type VariableStateMap = Record<string, VariableState>;

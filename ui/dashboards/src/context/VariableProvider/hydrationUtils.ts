@@ -22,6 +22,7 @@ function hydrateVariableState(variable: VariableDefinition, initialValue?: Varia
     loading: false,
     overriding: false,
     overridden: false,
+    spec: variable.spec,
   };
   switch (variable.kind) {
     case 'TextVariable':
