@@ -125,5 +125,16 @@ export function TimeRangeProvider(props: TimeRangeProviderProps): ReactElement {
     setRefreshInterval,
   ]);
 
+  // LOGZ.IO CHANGE::DEV-48732 send perses state to app
+  useEffect(() => {
+    const EVENTNAME = 'perses timeRange store update';
+    dispatchEvent(
+      new CustomEvent<typeof ctx>(EVENTNAME, {
+        detail: ctx,
+      })
+    );
+  }, [ctx]);
+  // LOGZ.IO CHANGE::DEV-48732 send perses state to app - end
+
   return <TimeRangeContext.Provider value={ctx}>{children}</TimeRangeContext.Provider>;
 }
