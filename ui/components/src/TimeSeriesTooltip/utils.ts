@@ -101,7 +101,7 @@ export function getTooltipStyles(
     position: 'absolute',
     top: 0,
     left: 0,
-    backgroundColor: theme.palette.common.white ?? TOOLTIP_BG_COLOR_FALLBACK,
+    backgroundColor: theme.palette.background.paper ?? TOOLTIP_BG_COLOR_FALLBACK,
     borderRadius: '6px',
     color: theme.palette.text.primary,
     fontSize: '11px',

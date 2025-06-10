@@ -71,7 +71,7 @@ export const TooltipHeader = memo(function TooltipHeader({
         width: '100%',
         maxWidth: TOOLTIP_MAX_WIDTH,
         padding: theme.spacing(1.5, 2, 0.5, 2),
-        backgroundColor: theme.palette.common.white ?? TOOLTIP_BG_COLOR_FALLBACK,
+        backgroundColor: theme.palette.background.paper ?? TOOLTIP_BG_COLOR_FALLBACK,
         position: 'sticky',
         borderBottom: `1px solid ${theme.palette.divider}`,
         top: 0,
