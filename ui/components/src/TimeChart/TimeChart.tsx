@@ -11,7 +11,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { forwardRef, MouseEvent, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react';
+import { createRef, forwardRef, MouseEvent, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react';
 import { Box } from '@mui/material';
 import merge from 'lodash/merge';
 import isEqual from 'lodash/isEqual';
@@ -86,6 +86,7 @@ export interface TimeChartProps {
   onDoubleClick?: (e: MouseEvent) => void;
   __experimentalEChartsOptionsOverride?: (options: EChartsCoreOption) => EChartsCoreOption;
   seriesMetadata?: TimeSeriesMetadata[]; // LOGZ.IO CHANGE:: Drilldown panel [APPZ-377]
+  graphRef?: React.MutableRefObject<EChartsInstance>;
 }
 
 export const TimeChart = forwardRef<ChartInstance, TimeChartProps>(function TimeChart(
@@ -105,6 +106,7 @@ export const TimeChart = forwardRef<ChartInstance, TimeChartProps>(function Time
     onDoubleClick,
     __experimentalEChartsOptionsOverride,
     seriesMetadata, // LOGZ.IO CHANGE:: Drilldown panel [APPZ-377]
+    graphRef,
   },
   ref
 ) {
@@ -117,7 +119,7 @@ export const TimeChart = forwardRef<ChartInstance, TimeChartProps>(function Time
     enableSyncGrouping, // LOGZ.IO CHANGE:: Shared tooltip in edit panel bug-fix [APPZ-498]
   } = useChartsContext();
   const isPinningEnabled = tooltipConfig.enablePinning && enablePinning;
-  const chartRef = useRef<EChartsInstance>();
+  const chartRef = useMemo(() => graphRef ?? (createRef() as React.MutableRefObject<EChartsInstance>), [graphRef]);
   const [showTooltip, setShowTooltip] = useState<boolean>(true);
   const [tooltipPinnedCoords, setTooltipPinnedCoords] = useState<CursorCoordinates | null>(null);
   const [pinnedCrosshair, setPinnedCrosshair] = useState<LineSeriesOption | null>(null);
@@ -160,7 +162,7 @@ export const TimeChart = forwardRef<ChartInstance, TimeChartProps>(function Time
         clearHighlightedSeries(chartRef.current);
       },
     };
-  }, []);
+  }, [chartRef]);
 
   const handleEvents: OnEventsType<LineSeriesOption['data'] | unknown> = useMemo(() => {
     return {
@@ -188,7 +190,7 @@ export const TimeChart = forwardRef<ChartInstance, TimeChartProps>(function Time
         }
       },
     };
-  }, [onDataZoom, setTooltipPinnedCoords]);
+  }, [onDataZoom, setTooltipPinnedCoords, chartRef]);
 
   const { noDataOption } = chartsTheme;
 
