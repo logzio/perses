@@ -189,7 +189,7 @@ export const TimeChart = forwardRef<ChartInstance, TimeChartProps>(function Time
         }
       },
     };
-  }, [onDataZoom, setTooltipPinnedCoords, chartRef]);
+  }, [onDataZoom, setTooltipPinnedCoords]);
 
   const { noDataOption } = chartsTheme;
 
