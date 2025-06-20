@@ -161,7 +161,7 @@ export const TimeChart = forwardRef<ChartInstance, TimeChartProps>(function Time
       },
       chartInstance: chartRef.current, // LOGZ.IO CHANGE:: Alert annotations [APPZ-477]
     };
-  }, [chartRef]);
+  }, []);
 
   const handleEvents: OnEventsType<LineSeriesOption['data'] | unknown> = useMemo(() => {
     return {
