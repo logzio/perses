@@ -227,7 +227,7 @@ function ListVariable({ name, source }: VariableProps): ReactElement {
     if (value && !valuesEqualConsideringAll(value, ctx.state?.value)) {
       setVariableValue(name, value, source);
     }
-  }, [setVariableValue, name, value, source, ctx.state?.value]);
+  }, [setVariableValue, name, value, source, ctx.state?.value]); // LOGZ.IO CHANGE:: Prevented infinite rerender loop once value is set to 'All' (DEFAULT_ALL_VALUE)[APPZ-1271]
 
   // Update loading when changed
   useEffect(() => {
