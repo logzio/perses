@@ -42,7 +42,7 @@ function variableOptionToVariableValue(options: VariableOption | VariableOption[
   }
   return options.value;
 }
-
+// LOGZ.IO CHANGE START:: Prevented infinite rerender loop once value is set to 'All' (DEFAULT_ALL_VALUE)[APPZ-1271]
 function canonicalizeVariableValue(value: VariableValue | undefined): VariableValue | undefined {
   if (Array.isArray(value) && value.includes(DEFAULT_ALL_VALUE)) {
     if (value.at(-1) === DEFAULT_ALL_VALUE) {
@@ -65,6 +65,7 @@ function valuesEqualConsideringAll(a: VariableValue | undefined, b: VariableValu
   }
   return ax === bx;
 }
+// LOGZ.IO CHANGE END:: Prevented infinite rerender loop once value is set to 'All' (DEFAULT_ALL_VALUE)[APPZ-1271]
 
 export function Variable({ name, source }: VariableProps): ReactElement {
   const ctx = useVariableDefinitionAndState(name, source);
@@ -222,6 +223,7 @@ function ListVariable({ name, source }: VariableProps): ReactElement {
 
   // Update value when changed
   useEffect(() => {
+    // LOGZ.IO CHANGE:: Prevented infinite rerender loop once value is set to 'All' (DEFAULT_ALL_VALUE)[APPZ-1271]
     if (value && !valuesEqualConsideringAll(value, ctx.state?.value)) {
       setVariableValue(name, value, source);
     }
