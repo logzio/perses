@@ -43,6 +43,29 @@ function variableOptionToVariableValue(options: VariableOption | VariableOption[
   return options.value;
 }
 
+function canonicalizeVariableValue(value: VariableValue | undefined): VariableValue | undefined {
+  if (Array.isArray(value) && value.includes(DEFAULT_ALL_VALUE)) {
+    if (value.at(-1) === DEFAULT_ALL_VALUE) {
+      return DEFAULT_ALL_VALUE;
+    }
+    return value.filter((v) => v !== DEFAULT_ALL_VALUE);
+  }
+  return value;
+}
+
+function valuesEqualConsideringAll(a: VariableValue | undefined, b: VariableValue | undefined): boolean {
+  const ax = canonicalizeVariableValue(a);
+  const bx = canonicalizeVariableValue(b);
+  if (Array.isArray(ax) && Array.isArray(bx)) {
+    if (ax.length !== bx.length) return false;
+    for (let i = 0; i < ax.length; i++) {
+      if (ax[i] !== bx[i]) return false;
+    }
+    return true;
+  }
+  return ax === bx;
+}
+
 export function Variable({ name, source }: VariableProps): ReactElement {
   const ctx = useVariableDefinitionAndState(name, source);
   const kind = ctx.definition?.kind;
@@ -199,10 +222,10 @@ function ListVariable({ name, source }: VariableProps): ReactElement {
 
   // Update value when changed
   useEffect(() => {
-    if (value) {
+    if (value && !valuesEqualConsideringAll(value, ctx.state?.value)) {
       setVariableValue(name, value, source);
     }
-  }, [setVariableValue, name, value, source]);
+  }, [setVariableValue, name, value, source, ctx.state?.value]);
 
   // Update loading when changed
   useEffect(() => {
