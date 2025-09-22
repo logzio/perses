@@ -45,10 +45,7 @@ function variableOptionToVariableValue(options: VariableOption | VariableOption[
 // LOGZ.IO CHANGE START:: Prevented infinite rerender loop once value is set to 'All' (DEFAULT_ALL_VALUE)[APPZ-1271]
 function canonicalizeVariableValue(value: VariableValue | undefined): VariableValue | undefined {
   if (Array.isArray(value) && value.includes(DEFAULT_ALL_VALUE)) {
-    if (value.at(-1) === DEFAULT_ALL_VALUE) {
-      return DEFAULT_ALL_VALUE;
-    }
-    return value.filter((v) => v !== DEFAULT_ALL_VALUE);
+    return DEFAULT_ALL_VALUE;
   }
   return value;
 }
