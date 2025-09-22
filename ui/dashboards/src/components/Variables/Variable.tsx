@@ -44,8 +44,11 @@ function variableOptionToVariableValue(options: VariableOption | VariableOption[
 }
 // LOGZ.IO CHANGE START:: Prevented infinite rerender loop once value is set to 'All' (DEFAULT_ALL_VALUE)[APPZ-1271]
 function canonicalizeVariableValue(value: VariableValue | undefined): VariableValue | undefined {
-  if (Array.isArray(value) && value.includes(DEFAULT_ALL_VALUE)) {
-    return DEFAULT_ALL_VALUE;
+  if (Array.isArray(value)) {
+    if (value.includes(DEFAULT_ALL_VALUE)) {
+      return [DEFAULT_ALL_VALUE];
+    }
+    return [...value].sort();
   }
   return value;
 }
@@ -53,6 +56,10 @@ function canonicalizeVariableValue(value: VariableValue | undefined): VariableVa
 function valuesEqualConsideringAll(a: VariableValue | undefined, b: VariableValue | undefined): boolean {
   const ax = canonicalizeVariableValue(a);
   const bx = canonicalizeVariableValue(b);
+  const isAll = (v: VariableValue | undefined): boolean => v === DEFAULT_ALL_VALUE;
+  const isAllArray = (v: VariableValue | undefined): boolean =>
+    Array.isArray(v) && v.length === 1 && v[0] === DEFAULT_ALL_VALUE;
+  if ((isAllArray(ax) && isAll(bx)) || (isAll(ax) && isAllArray(bx))) return true;
   if (Array.isArray(ax) && Array.isArray(bx)) {
     if (ax.length !== bx.length) return false;
     for (let i = 0; i < ax.length; i++) {
