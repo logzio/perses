@@ -110,13 +110,33 @@ export function checkforNearbyTimeSeries(
         // TODO: ensure null values not displayed in tooltip
         if (yValue !== undefined && yValue !== null) {
           if (closestTimestamp === xValue) {
-            if (cursorY <= yValue + yBuffer && cursorY >= yValue - yBuffer) {
+            const stackId = (lineSeries as { stack?: string }).stack;
+            let visualY = yValue as number;
+            if (stackId !== undefined) {
+              let cumulativeY = 0;
+              for (let sIdx = 0; sIdx <= seriesIdx; sIdx++) {
+                const stackedSeries = seriesMapping[sIdx] as LineSeriesOption | undefined;
+                if (!stackedSeries) continue;
+                const stackedStackId = (stackedSeries as { stack?: string }).stack;
+                if (stackedStackId !== stackId) continue;
+                const stackedDataset = data[sIdx]?.values;
+                if (!Array.isArray(stackedDataset)) continue;
+                const tuple = stackedDataset.find((t) => Array.isArray(t) && t[0] === closestTimestamp);
+                const v = tuple ? (tuple[1] as number | null) : null;
+                if (typeof v === 'number') {
+                  cumulativeY += v;
+                }
+              }
+              visualY = cumulativeY;
+            }
+
+            if (cursorY <= visualY + yBuffer && cursorY >= visualY - yBuffer) {
               // show fewer bold series in tooltip when many total series
               const minPercentRange = totalSeries > SHOW_FEWER_SERIES_LIMIT ? 2 : 5;
               const percentRangeToCheck = Math.max(minPercentRange, 100 / totalSeries);
               const isClosestToCursor = isWithinPercentageRange({
                 valueToCheck: cursorY,
-                baseValue: yValue,
+                baseValue: visualY,
                 percentage: percentRangeToCheck,
               });
               const isSelected = selectedSeriesIdx === seriesIdx; // LOGZ.IO CHANGE:: Drilldown panel [APPZ-377]
@@ -126,14 +146,14 @@ export function checkforNearbyTimeSeries(
 
                 // Used to determine which datapoint to apply select styles to.
                 // Accounts for cases where lines may be rendered directly on top of eachother.
-                const duplicateValuesCount = yValueCounts.get(yValue) ?? 0;
-                yValueCounts.set(yValue, duplicateValuesCount + 1);
+                const duplicateValuesCount = yValueCounts.get(visualY) ?? 0;
+                yValueCounts.set(visualY, duplicateValuesCount + 1);
                 if (duplicateValuesCount > 0) {
                   duplicateDatapoints.push({
                     seriesIndex: seriesIdx,
                     dataIndex: datumIdx,
                     seriesName: currentSeriesName,
-                    yValue: yValue,
+                    yValue: visualY,
                   });
                 }
 
@@ -142,7 +162,7 @@ export function checkforNearbyTimeSeries(
                   seriesIndex: seriesIdx,
                   dataIndex: datumIdx,
                   seriesName: currentSeriesName,
-                  yValue: yValue,
+                  yValue: visualY,
                 });
               } else {
                 nonEmphasizedSeriesIndexes.push(seriesIdx);
