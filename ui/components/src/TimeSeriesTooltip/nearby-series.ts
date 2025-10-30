@@ -16,8 +16,8 @@ import { formatValue, FormatOptions, TimeSeries, TimeSeriesMetadata } from '@per
 import { EChartsDataFormat, OPTIMIZED_MODE_SERIES_LIMIT, TimeChartSeriesMapping } from '../model';
 import { batchDispatchNearbySeriesActions, getPointInGrid, getClosestTimestamp } from '../utils';
 import { CursorCoordinates, CursorData, EMPTY_TOOLTIP_DATA } from './tooltip-model';
-import { gatherCandidates, findClosestCandidate, processCandidates } from './utils';
 import { NearbySeriesArray } from './types';
+import { gatherCandidates, findClosestCandidate, processCandidates } from './utils';
 
 // LOGZ.IO CHANGE START:: Tooltip is not behaving correctly [APPZ-1418]
 
@@ -48,7 +48,23 @@ export function checkforNearbyTimeSeries(
 
   if (chart.dispatchAction === undefined) return EMPTY_TOOLTIP_DATA;
 
+<<<<<<< HEAD
   if (!Array.isArray(data)) return EMPTY_TOOLTIP_DATA;
+=======
+  if (!Array.isArray(data)) return currentNearbySeriesData;
+  const isBarSeries = (s: TimeChartSeriesMapping[number] | undefined): s is BarSeriesOption =>
+    (s as BarSeriesOption)?.type === 'bar';
+  const stackedBarMode = seriesMapping.some((s) => isBarSeries(s) && s.stack === 'all');
+  const nearbySeriesIndexes: number[] = [];
+  const emphasizedSeriesIndexes: number[] = [];
+  const nonEmphasizedSeriesIndexes: number[] = [];
+  const emphasizedDatapoints: DatapointInfo[] = [];
+  const duplicateDatapoints: DatapointInfo[] = [];
+
+  const totalSeries = data.length;
+
+  const yValueCounts: Map<number, number> = new Map();
+>>>>>>> ecc0f1cc (Unify tooltip behavior for stacked bars)
 
   // Only need to loop through first dataset source since getCommonTimeScale ensures xAxis timestamps are consistent
   const firstTimeSeriesValues = data[0]?.values;
@@ -70,9 +86,163 @@ export function checkforNearbyTimeSeries(
     selectedSeriesIdx,
   });
 
+<<<<<<< HEAD
   if (candidates.length === 0) {
     batchDispatchNearbySeriesActions(chart, [], [], [], [], []);
     return EMPTY_TOOLTIP_DATA;
+=======
+    if (!currentSeries) break;
+
+    const currentDataset = totalSeries > 0 ? data[seriesIdx] : null;
+    if (!currentDataset) break;
+
+    const currentDatasetValues: TimeSeriesValueTuple[] = currentDataset.values;
+    if (currentDatasetValues === undefined || !Array.isArray(currentDatasetValues)) break;
+    const seriesName = (currentSeries as LineSeriesOption).name
+      ? (currentSeries as LineSeriesOption).name!.toString()
+      : '';
+    const markerColor = (currentSeries as LineSeriesOption).color ?? '#000';
+    if (stackedBarMode && isBarSeries(currentSeries)) {
+      let timestampIndex = -1;
+      for (let i = 0; i < currentDatasetValues.length; i++) {
+        if (currentDatasetValues[i]?.[0] === closestTimestamp) {
+          timestampIndex = i;
+          break;
+        }
+      }
+      if (timestampIndex === -1) break;
+
+      let positiveSum = 0;
+      let negativeSum = 0;
+      let selectedIndex: number | null = null;
+
+      for (let sIdx = 0; sIdx < totalSeries; sIdx++) {
+        const s = seriesMapping[sIdx];
+        if (!isBarSeries(s)) continue;
+        const tuple = data[sIdx]?.values?.[timestampIndex];
+        if (!tuple) continue;
+        const val = tuple[1];
+        if (typeof val !== 'number') continue;
+
+        let low: number;
+        let high: number;
+        if (val >= 0) {
+          low = positiveSum;
+          high = positiveSum + val;
+          positiveSum = high;
+        } else {
+          low = negativeSum + val;
+          high = negativeSum;
+          negativeSum = low;
+        }
+        const selectionBuffer = 0;
+        const minY = Math.min(low, high) - selectionBuffer;
+        const maxY = Math.max(low, high) + selectionBuffer;
+        if (cursorY >= minY && cursorY <= maxY) {
+          selectedIndex = sIdx;
+        }
+      }
+
+      for (let sIdx = 0; sIdx < totalSeries; sIdx++) {
+        const s = seriesMapping[sIdx];
+        if (!data[sIdx]) continue;
+        const tuple = data[sIdx]?.values?.[timestampIndex];
+        if (!tuple) continue;
+        const val = tuple[1];
+        if (typeof val !== 'number') continue;
+        const formattedY = formatValue(val, format);
+        const isClosestToCursor = selectedIndex === sIdx;
+        const isSelected = selectedSeriesIdx === sIdx;
+        if (isClosestToCursor) {
+          emphasizedSeriesIndexes.push(sIdx);
+        } else {
+          nonEmphasizedSeriesIndexes.push(sIdx);
+          chart.dispatchAction({ type: 'downplay', seriesIndex: sIdx });
+        }
+        currentNearbySeriesData.push({
+          seriesIdx: sIdx,
+          datumIdx: timestampIndex,
+          seriesName: ((s as LineSeriesOption).name ?? '').toString(),
+          date: closestTimestamp,
+          x: tuple[0],
+          y: val,
+          formattedY,
+          markerColor: (((s as LineSeriesOption).color ?? '#000') as string).toString(),
+          isClosestToCursor,
+          metadata: seriesMetadata?.[sIdx],
+          isSelected,
+        });
+        nearbySeriesIndexes.push(sIdx);
+      }
+
+      break;
+    } else {
+      if (Array.isArray(data)) {
+        for (let datumIdx = 0; datumIdx < currentDatasetValues.length; datumIdx++) {
+          const nearbyTimeSeries = currentDatasetValues[datumIdx];
+          if (nearbyTimeSeries === undefined || !Array.isArray(nearbyTimeSeries)) break;
+
+          const xValue = nearbyTimeSeries[0];
+          const yValue = nearbyTimeSeries[1];
+
+          if (yValue !== undefined && yValue !== null) {
+            if (closestTimestamp === xValue) {
+              if (cursorY <= yValue + yBuffer && cursorY >= yValue - yBuffer) {
+                const minPercentRange = totalSeries > SHOW_FEWER_SERIES_LIMIT ? 2 : 5;
+                const percentRangeToCheck = Math.max(minPercentRange, 100 / totalSeries);
+                const isClosestToCursor = isWithinPercentageRange({
+                  valueToCheck: cursorY,
+                  baseValue: yValue,
+                  percentage: percentRangeToCheck,
+                });
+                const isSelected = selectedSeriesIdx === seriesIdx;
+                if (isClosestToCursor) {
+                  emphasizedSeriesIndexes.push(seriesIdx);
+                  const duplicateValuesCount = yValueCounts.get(yValue) ?? 0;
+                  yValueCounts.set(yValue, duplicateValuesCount + 1);
+                  if (duplicateValuesCount > 0) {
+                    duplicateDatapoints.push({
+                      seriesIndex: seriesIdx,
+                      dataIndex: datumIdx,
+                      seriesName: seriesName,
+                      yValue: yValue,
+                    });
+                  }
+                  emphasizedDatapoints.push({
+                    seriesIndex: seriesIdx,
+                    dataIndex: datumIdx,
+                    seriesName: seriesName,
+                    yValue: yValue,
+                  });
+                } else {
+                  nonEmphasizedSeriesIndexes.push(seriesIdx);
+                  chart.dispatchAction({
+                    type: 'downplay',
+                    seriesIndex: seriesIdx,
+                  });
+                }
+                const formattedY = formatValue(yValue, format);
+                currentNearbySeriesData.push({
+                  seriesIdx: seriesIdx,
+                  datumIdx: datumIdx,
+                  seriesName: seriesName,
+                  date: closestTimestamp,
+                  x: xValue,
+                  y: yValue,
+                  formattedY: formattedY,
+                  markerColor: markerColor.toString(),
+                  isClosestToCursor,
+                  metadata: currentMetadata,
+                  isSelected,
+                });
+                nearbySeriesIndexes.push(seriesIdx);
+              }
+            }
+          }
+        }
+      }
+    }
+>>>>>>> ecc0f1cc (Unify tooltip behavior for stacked bars)
   }
 
   const winner = findClosestCandidate(candidates);

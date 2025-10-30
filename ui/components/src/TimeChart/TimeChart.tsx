@@ -239,11 +239,9 @@ export const TimeChart = forwardRef<ChartInstance, TimeChartProps>(function Time
       animation: false,
       tooltip: {
         show: true,
-        // ECharts tooltip content hidden by default since we use custom tooltip instead.
-        // Stacked bar uses ECharts tooltip so subgroup data shows correctly.
-        showContent: isStackedBar,
-        trigger: isStackedBar ? 'item' : 'axis',
-        appendToBody: isStackedBar,
+        showContent: isStackedBar && tooltipConfig.useCustomForStackedBar === false,
+        trigger: isStackedBar && tooltipConfig.useCustomForStackedBar === false ? 'item' : 'axis',
+        appendToBody: isStackedBar && tooltipConfig.useCustomForStackedBar === false,
       },
       // https://echarts.apache.org/en/option.html#axisPointer
       axisPointer: {
