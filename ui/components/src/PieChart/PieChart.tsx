@@ -25,7 +25,7 @@ import { Box } from '@mui/material';
 import { ReactElement } from 'react';
 import type { ECharts as EChartsInstance } from 'echarts/core';
 import { useChartsTheme } from '../context/ChartsProvider';
-// LOGZ.IO CHANGE START:: Tooltip is not behaving correctly [APPZ-1418]
+// LOGZ.IO CHANGE:: Tooltip is not behaving correctly [APPZ-1418]
 import { EChart, OnEventsType } from '../EChart';
 use([EChartsPieChart, GridComponent, DatasetComponent, TitleComponent, TooltipComponent, CanvasRenderer]);
 
