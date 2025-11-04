@@ -11,6 +11,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import { ECharts as EChartsInstance } from 'echarts/core';
 import { Theme } from '@mui/material';
 import {
   CursorCoordinates,
@@ -122,3 +123,120 @@ export function getTooltipStyles(
     },
   };
 }
+
+// LOGZ.IO CHANGE START:: Tooltip is not behaving correctly [APPZ-1418]
+
+export function getPixelXFromGrid(chart: EChartsInstance, xValue: number): number {
+  const pixelValue = chart.convertToPixel('grid', [xValue, 0]);
+  return pixelValue[0] ?? 0;
+}
+
+export function calculateVisualYForSeries({
+  rawY,
+  stackId,
+  stackTotals,
+}: {
+  rawY: number;
+  stackId?: string;
+  stackTotals: Map<string, number>;
+}): number {
+  if (stackId === undefined) {
+    return rawY;
+  }
+
+  const currentStackTotal = stackTotals.get(stackId) ?? 0;
+  const visualY = currentStackTotal + rawY;
+  stackTotals.set(stackId, visualY);
+
+  return visualY;
+}
+
+export function calculateBarBandwidth({
+  timestampCenterX,
+  prevTimestamp,
+  nextTimestamp,
+  chart,
+  defaultBandwidth = 20,
+}: {
+  timestampCenterX: number;
+  prevTimestamp: number | undefined;
+  nextTimestamp: number | undefined;
+  chart: EChartsInstance;
+  defaultBandwidth?: number;
+}): number {
+  const hasLeftNeighbor = prevTimestamp !== undefined;
+  const hasRightNeighbor = nextTimestamp !== undefined;
+
+  if (!hasLeftNeighbor && !hasRightNeighbor) {
+    return defaultBandwidth;
+  }
+
+  let leftTimestampX: number | null = null;
+  let rightTimestampX: number | null = null;
+
+  if (hasLeftNeighbor) {
+    leftTimestampX = getPixelXFromGrid(chart, prevTimestamp);
+  }
+
+  if (hasRightNeighbor) {
+    rightTimestampX = getPixelXFromGrid(chart, nextTimestamp);
+  }
+
+  if (leftTimestampX !== null && rightTimestampX !== null) {
+    const distanceToLeft = Math.abs(timestampCenterX - leftTimestampX);
+    const distanceToRight = Math.abs(rightTimestampX - timestampCenterX);
+    return Math.min(distanceToLeft, distanceToRight);
+  }
+
+  if (leftTimestampX !== null) {
+    return Math.abs(timestampCenterX - leftTimestampX);
+  }
+
+  if (rightTimestampX !== null) {
+    return Math.abs(rightTimestampX - timestampCenterX);
+  }
+
+  return defaultBandwidth;
+}
+
+export function calculateBarSegmentBounds({
+  timestampCenterX,
+  bandwidth,
+  seriesIdx,
+  barSeriesOrder,
+}: {
+  timestampCenterX: number;
+  bandwidth: number;
+  seriesIdx: number;
+  barSeriesOrder: number[];
+}): { segLeft: number; segRight: number } {
+  const groupLeft = timestampCenterX - bandwidth / 2;
+  const barsInGroup = barSeriesOrder.length || 1;
+  const idxInBars = Math.max(0, barSeriesOrder.indexOf(seriesIdx));
+  const segmentWidth = bandwidth / barsInGroup;
+  const segLeft = groupLeft + idxInBars * segmentWidth;
+  const segRight = segLeft + segmentWidth;
+
+  return { segLeft, segRight };
+}
+
+export function calculateBarYBounds({
+  visualY,
+  rawY,
+  isStacked,
+}: {
+  visualY: number;
+  rawY: number;
+  isStacked: boolean;
+}): {
+  base: number;
+  lower: number;
+  upper: number;
+} {
+  const base = isStacked ? visualY - rawY : 0;
+  const lower = Math.min(base, visualY);
+  const upper = Math.max(base, visualY);
+
+  return { base, lower, upper };
+}
+// LOGZ.IO CHANGE END:: Tooltip is not behaving correctly [APPZ-1418]

@@ -17,6 +17,13 @@ import { formatValue, TimeSeriesValueTuple, FormatOptions, TimeSeries, TimeSerie
 import { EChartsDataFormat, OPTIMIZED_MODE_SERIES_LIMIT, TimeChartSeriesMapping, DatapointInfo } from '../model';
 import { batchDispatchNearbySeriesActions, getPointInGrid, getClosestTimestamp } from '../utils';
 import { CursorCoordinates, CursorData, EMPTY_TOOLTIP_DATA } from './tooltip-model';
+import {
+  calculateBarBandwidth,
+  calculateBarSegmentBounds,
+  calculateBarYBounds,
+  calculateVisualYForSeries,
+  getPixelXFromGrid,
+} from './utils';
 
 // LOGZ.IO CHANGE START:: Tooltip is not behaving correctly [APPZ-1418]
 
@@ -40,25 +47,13 @@ export interface NearbySeriesInfo {
 }
 
 export type NearbySeriesArray = NearbySeriesInfo[];
-type Candidate = {
+
+type Candidate = Omit<NearbySeriesInfo, 'isClosestToCursor' | 'seriesIdx' | 'datumIdx'> & {
   seriesIdx: number;
   datumIdx: number;
-  seriesName: string;
-  date: number;
-  x: number;
-  y: number;
-  formattedY: string;
-  markerColor: string;
-  metadata?: TimeSeriesMetadata;
-  isSelected: boolean;
   visualY: number;
   distance: number;
 };
-
-function getPixelXFromGrid(chart: EChartsInstance, xValue: number): number {
-  const pixelValue = chart.convertToPixel('grid', [xValue, 0]);
-  return pixelValue[0] ?? 0;
-}
 
 /**
  * Returns formatted series data for the points that are close to the user's cursor.
@@ -112,124 +107,123 @@ export function checkforNearbyTimeSeries(
 
   for (let seriesIdx = 0; seriesIdx < totalSeries; seriesIdx++) {
     const currentSeries = seriesMapping[seriesIdx];
-    const currentMetadata = seriesMetadata?.[seriesIdx];
+    const hasCurrentSeries = currentSeries !== undefined;
 
-    if (!currentSeries) break;
+    if (hasCurrentSeries) {
+      const currentMetadata = seriesMetadata?.[seriesIdx];
+      const currentDataset = totalSeries > 0 ? data[seriesIdx] : undefined;
 
-    const currentDataset = totalSeries > 0 ? data[seriesIdx] : null;
-    if (!currentDataset) break;
+      if (currentDataset !== undefined && currentDataset !== null) {
+        const currentDatasetValues: TimeSeriesValueTuple[] = currentDataset.values;
+        const hasValidDatasetValues = currentDatasetValues !== undefined && Array.isArray(currentDatasetValues);
 
-    const currentDatasetValues: TimeSeriesValueTuple[] = currentDataset.values;
-    if (currentDatasetValues === undefined || !Array.isArray(currentDatasetValues)) break;
-    const lineSeries = currentSeries as LineSeriesOption;
-    const seriesType = currentSeries.type ?? 'line';
-    const currentSeriesName = lineSeries.name ? lineSeries.name.toString() : '';
-    const markerColor = lineSeries.color ?? '#000';
-    if (Array.isArray(data)) {
-      for (let datumIdx = 0; datumIdx < currentDatasetValues.length; datumIdx++) {
-        const nearbyTimeSeries = currentDatasetValues[datumIdx];
-        if (nearbyTimeSeries === undefined || !Array.isArray(nearbyTimeSeries)) break;
+        if (hasValidDatasetValues && Array.isArray(data)) {
+          const lineSeries = currentSeries as LineSeriesOption;
+          const seriesType = currentSeries.type ?? 'line';
+          const isBarSeries = seriesType === 'bar';
+          const isLineSeries = seriesType === 'line';
+          const currentSeriesName = lineSeries.name ? lineSeries.name.toString() : '';
+          const markerColor = lineSeries.color ?? '#000';
+          const stackId = lineSeries.stack;
+          const isStacked = stackId !== undefined;
 
-        const xValue = nearbyTimeSeries[0];
-        const yValue = nearbyTimeSeries[1];
+          for (let datumIdx = 0; datumIdx < currentDatasetValues.length; datumIdx++) {
+            const nearbyTimeSeries = currentDatasetValues[datumIdx];
+            const hasValidTimeSeries = nearbyTimeSeries !== undefined && Array.isArray(nearbyTimeSeries);
 
-        if (yValue !== undefined && yValue !== null) {
-          if (seriesType === 'bar') {
-            if (closestTimestamp === xValue && mousePixelX !== undefined) {
-              const stackId = lineSeries.stack;
-              const rawY = yValue;
-              let visualY: number;
-              if (stackId !== undefined) {
-                const currentStackTotal = stackTotals.get(stackId) ?? 0;
-                visualY = currentStackTotal + rawY;
-                stackTotals.set(stackId, visualY);
-              } else {
-                visualY = rawY;
-              }
-              const prevTimestamp = firstTimeSeriesValues?.[datumIdx - 1]?.[0];
-              const nextTimestamp = firstTimeSeriesValues?.[datumIdx + 1]?.[0];
-              const timestampCenterX = getPixelXFromGrid(chart, xValue);
-              let leftTimestampX: number | null = null;
-              let rightTimestampX: number | null = null;
-              if (prevTimestamp !== undefined) {
-                leftTimestampX = getPixelXFromGrid(chart, prevTimestamp);
-              }
-              if (nextTimestamp !== undefined) {
-                rightTimestampX = getPixelXFromGrid(chart, nextTimestamp);
-              }
-              let bandwidth = 20;
-              if (leftTimestampX !== null && rightTimestampX !== null) {
-                bandwidth = Math.min(
-                  Math.abs(timestampCenterX - leftTimestampX),
-                  Math.abs(rightTimestampX - timestampCenterX)
-                );
-              } else if (leftTimestampX !== null) {
-                bandwidth = Math.abs(timestampCenterX - leftTimestampX);
-              } else if (rightTimestampX !== null) {
-                bandwidth = Math.abs(rightTimestampX - timestampCenterX);
-              }
-              const groupLeft = timestampCenterX - bandwidth / 2;
-              const barsInGroup = barSeriesOrder.length || 1;
-              const idxInBars = Math.max(0, barSeriesOrder.indexOf(seriesIdx));
-              const segmentWidth = bandwidth / barsInGroup;
-              const segLeft = groupLeft + idxInBars * segmentWidth;
-              const segRight = segLeft + segmentWidth;
-              const base = stackId !== undefined ? visualY - rawY : 0;
-              const lower = Math.min(base, visualY);
-              const upper = Math.max(base, visualY);
-              const isHoveringXSegment = mousePixelX >= segLeft && mousePixelX <= segRight;
-              const isHoveringYBounds = stackId !== undefined ? cursorY >= lower && cursorY <= upper : true;
-              if (isHoveringXSegment && isHoveringYBounds) {
-                nearbySeriesIndexes.push(seriesIdx);
-                const isSelected = selectedSeriesIdx === seriesIdx;
-                const formattedY = formatValue(rawY, format);
-                const distance = Math.abs((segLeft + segRight) / 2 - mousePixelX);
-                candidates.push({
-                  seriesIdx,
-                  datumIdx,
-                  seriesName: currentSeriesName,
-                  date: closestTimestamp,
-                  x: xValue,
-                  y: rawY,
-                  formattedY,
-                  markerColor: markerColor.toString(),
-                  metadata: currentMetadata,
-                  isSelected,
-                  visualY,
-                  distance,
+            if (hasValidTimeSeries) {
+              const xValue = nearbyTimeSeries[0];
+              const yValue = nearbyTimeSeries[1];
+              const hasValidYValue = yValue !== undefined && yValue !== null;
+              const isAtClosestTimestamp = closestTimestamp === xValue;
+
+              if (hasValidYValue && isAtClosestTimestamp) {
+                const visualY = calculateVisualYForSeries({
+                  rawY: yValue,
+                  stackId,
+                  stackTotals,
                 });
-              }
-            }
-          } else {
-            if (closestTimestamp === xValue) {
-              const stackId = lineSeries.stack;
-              let visualY: number;
-              if (stackId !== undefined) {
-                const currentStackTotal = stackTotals.get(stackId) ?? 0;
-                visualY = currentStackTotal + yValue;
-                stackTotals.set(stackId, visualY);
-              } else {
-                visualY = yValue;
-              }
-              const distance = Math.abs(visualY - cursorY);
-              if (distance <= yBuffer) {
-                nearbySeriesIndexes.push(seriesIdx);
-                const isSelected = selectedSeriesIdx === seriesIdx;
-                const formattedY = formatValue(yValue, format);
-                candidates.push({
-                  seriesIdx,
-                  datumIdx,
-                  seriesName: currentSeriesName,
-                  date: closestTimestamp,
-                  x: xValue,
-                  y: yValue,
-                  formattedY,
-                  markerColor: markerColor.toString(),
-                  metadata: currentMetadata,
-                  isSelected,
-                  visualY,
-                  distance,
-                });
+
+                if (isBarSeries) {
+                  const hasValidMousePixelX = mousePixelX !== undefined;
+
+                  if (hasValidMousePixelX) {
+                    const prevTimestamp = firstTimeSeriesValues?.[datumIdx - 1]?.[0];
+                    const nextTimestamp = firstTimeSeriesValues?.[datumIdx + 1]?.[0];
+                    const timestampCenterX = getPixelXFromGrid(chart, xValue);
+
+                    const bandwidth = calculateBarBandwidth({
+                      timestampCenterX,
+                      prevTimestamp,
+                      nextTimestamp,
+                      chart,
+                    });
+
+                    const { segLeft, segRight } = calculateBarSegmentBounds({
+                      timestampCenterX,
+                      bandwidth,
+                      seriesIdx,
+                      barSeriesOrder,
+                    });
+
+                    const { lower, upper } = calculateBarYBounds({
+                      visualY,
+                      rawY: yValue,
+                      isStacked,
+                    });
+
+                    const isHoveringXSegment = mousePixelX >= segLeft && mousePixelX <= segRight;
+                    const isHoveringYBounds = isStacked ? cursorY >= lower && cursorY <= upper : true;
+                    const isHoveringBar = isHoveringXSegment && isHoveringYBounds;
+
+                    if (isHoveringBar) {
+                      const segmentCenterX = (segLeft + segRight) / 2;
+                      const distance = Math.abs(segmentCenterX - mousePixelX);
+                      const isSelected = selectedSeriesIdx === seriesIdx;
+                      const formattedY = formatValue(yValue, format);
+
+                      nearbySeriesIndexes.push(seriesIdx);
+                      candidates.push({
+                        seriesIdx,
+                        datumIdx,
+                        seriesName: currentSeriesName,
+                        date: closestTimestamp,
+                        x: xValue,
+                        y: yValue,
+                        formattedY,
+                        markerColor: markerColor.toString(),
+                        metadata: currentMetadata,
+                        isSelected,
+                        visualY,
+                        distance,
+                      });
+                    }
+                  }
+                } else if (isLineSeries) {
+                  const distance = Math.abs(visualY - cursorY);
+                  const isWithinYBuffer = distance <= yBuffer;
+
+                  if (isWithinYBuffer) {
+                    const isSelected = selectedSeriesIdx === seriesIdx;
+                    const formattedY = formatValue(yValue, format);
+
+                    nearbySeriesIndexes.push(seriesIdx);
+                    candidates.push({
+                      seriesIdx,
+                      datumIdx,
+                      seriesName: currentSeriesName,
+                      date: closestTimestamp,
+                      x: xValue,
+                      y: yValue,
+                      formattedY,
+                      markerColor: markerColor.toString(),
+                      metadata: currentMetadata,
+                      isSelected,
+                      visualY,
+                      distance,
+                    });
+                  }
+                }
               }
             }
           }
@@ -238,7 +232,8 @@ export function checkforNearbyTimeSeries(
     }
   }
 
-  if (candidates.length === 0) {
+  const hasNoCandidates = candidates.length === 0;
+  if (hasNoCandidates) {
     batchDispatchNearbySeriesActions(
       chart,
       nearbySeriesIndexes,
@@ -250,24 +245,36 @@ export function checkforNearbyTimeSeries(
     return currentNearbySeriesData;
   }
 
-  let winnerIdx = 0;
-  let minDistance = candidates[0]!.distance;
-  for (let i = 1; i < candidates.length; i++) {
-    const distance = candidates[i]!.distance;
-    if (distance < minDistance) {
-      minDistance = distance;
-      winnerIdx = i;
+  const findClosestCandidate = (): Candidate => {
+    let winnerIdx = 0;
+    let minDistance = candidates[0]!.distance;
+
+    for (let i = 1; i < candidates.length; i++) {
+      const candidateDistance = candidates[i]!.distance;
+      const isCloserThanCurrentWinner = candidateDistance < minDistance;
+
+      if (isCloserThanCurrentWinner) {
+        minDistance = candidateDistance;
+        winnerIdx = i;
+      }
     }
-  }
-  const winner = candidates[winnerIdx]!;
+
+    return candidates[winnerIdx]!;
+  };
+
+  const winner = findClosestCandidate();
 
   for (const candidate of candidates) {
     const isClosestToCursor = candidate === winner;
+
     if (isClosestToCursor) {
       emphasizedSeriesIndexes.push(candidate.seriesIdx);
+
       const duplicateValuesCount = yValueCounts.get(candidate.visualY) ?? 0;
+      const hasDuplicateValues = duplicateValuesCount > 0;
       yValueCounts.set(candidate.visualY, duplicateValuesCount + 1);
-      if (duplicateValuesCount > 0) {
+
+      if (hasDuplicateValues) {
         duplicateDatapoints.push({
           seriesIndex: candidate.seriesIdx,
           dataIndex: candidate.datumIdx,
@@ -275,6 +282,7 @@ export function checkforNearbyTimeSeries(
           yValue: candidate.visualY,
         });
       }
+
       emphasizedDatapoints.push({
         seriesIndex: candidate.seriesIdx,
         dataIndex: candidate.datumIdx,
@@ -284,6 +292,7 @@ export function checkforNearbyTimeSeries(
     } else {
       nonEmphasizedSeriesIndexes.push(candidate.seriesIdx);
     }
+
     currentNearbySeriesData.push({
       seriesIdx: candidate.seriesIdx,
       datumIdx: candidate.datumIdx,
