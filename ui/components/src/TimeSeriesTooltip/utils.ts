@@ -13,6 +13,9 @@
 
 import { ECharts as EChartsInstance } from 'echarts/core';
 import { Theme } from '@mui/material';
+import { formatValue, TimeSeries, TimeSeriesMetadata, FormatOptions, TimeSeriesValueTuple } from '@perses-dev/core';
+import { LineSeriesOption } from 'echarts/charts';
+import { DatapointInfo, TimeChartSeriesMapping } from '../model';
 import {
   CursorCoordinates,
   CursorData,
@@ -22,6 +25,16 @@ import {
   TOOLTIP_BG_COLOR_FALLBACK,
   TOOLTIP_PADDING,
 } from './tooltip-model';
+import {
+  CalculateBarBandwidthParams,
+  CalculateBarSegmentBoundsParams,
+  CalculateBarYBoundsParams,
+  CalculateVisualYForSeriesParams,
+  BarSegmentBounds,
+  BarYBounds,
+  Candidate,
+  NearbySeriesArray,
+} from './types';
 
 /**
  * Determine position of tooltip depending on chart dimensions and the number of focused series
@@ -131,15 +144,7 @@ export function getPixelXFromGrid(chart: EChartsInstance, xValue: number): numbe
   return pixelValue[0] ?? 0;
 }
 
-export function calculateVisualYForSeries({
-  rawY,
-  stackId,
-  stackTotals,
-}: {
-  rawY: number;
-  stackId?: string;
-  stackTotals: Map<string, number>;
-}): number {
+export function calculateVisualYForSeries({ rawY, stackId, stackTotals }: CalculateVisualYForSeriesParams): number {
   if (stackId === undefined) {
     return rawY;
   }
@@ -157,13 +162,7 @@ export function calculateBarBandwidth({
   nextTimestamp,
   chart,
   defaultBandwidth = 20,
-}: {
-  timestampCenterX: number;
-  prevTimestamp: number | undefined;
-  nextTimestamp: number | undefined;
-  chart: EChartsInstance;
-  defaultBandwidth?: number;
-}): number {
+}: CalculateBarBandwidthParams): number {
   const hasLeftNeighbor = prevTimestamp !== undefined;
   const hasRightNeighbor = nextTimestamp !== undefined;
 
@@ -204,12 +203,7 @@ export function calculateBarSegmentBounds({
   bandwidth,
   seriesIdx,
   barSeriesOrder,
-}: {
-  timestampCenterX: number;
-  bandwidth: number;
-  seriesIdx: number;
-  barSeriesOrder: number[];
-}): { segLeft: number; segRight: number } {
+}: CalculateBarSegmentBoundsParams): BarSegmentBounds {
   const groupLeft = timestampCenterX - bandwidth / 2;
   const barsInGroup = barSeriesOrder.length || 1;
   const idxInBars = Math.max(0, barSeriesOrder.indexOf(seriesIdx));
@@ -220,23 +214,275 @@ export function calculateBarSegmentBounds({
   return { segLeft, segRight };
 }
 
-export function calculateBarYBounds({
-  visualY,
-  rawY,
-  isStacked,
-}: {
-  visualY: number;
-  rawY: number;
-  isStacked: boolean;
-}): {
-  base: number;
-  lower: number;
-  upper: number;
-} {
+export function calculateBarYBounds({ visualY, rawY, isStacked }: CalculateBarYBoundsParams): BarYBounds {
   const base = isStacked ? visualY - rawY : 0;
   const lower = Math.min(base, visualY);
   const upper = Math.max(base, visualY);
 
   return { base, lower, upper };
 }
+
+export function findClosestCandidate(candidates: Candidate[]): Candidate {
+  if (candidates.length === 0) {
+    throw new Error('Cannot find closest candidate in an empty array.');
+  }
+
+  let winnerIdx = 0;
+  let minDistance = candidates[0]!.distance;
+
+  for (let i = 1; i < candidates.length; i++) {
+    const candidateDistance = candidates[i]!.distance;
+    const isCloserThanCurrentWinner = candidateDistance < minDistance;
+
+    if (isCloserThanCurrentWinner) {
+      minDistance = candidateDistance;
+      winnerIdx = i;
+    }
+  }
+
+  return candidates[winnerIdx]!;
+}
+
+/**
+ * Gathers all series points that are close to the user's cursor.
+ */
+export function gatherCandidates({
+  data,
+  seriesMapping,
+  closestTimestamp,
+  cursorY,
+  yBuffer,
+  chart,
+  mousePixelX,
+  seriesMetadata,
+  format,
+  selectedSeriesIdx,
+}: {
+  data: TimeSeries[];
+  seriesMapping: TimeChartSeriesMapping;
+  closestTimestamp: number;
+  cursorY: number;
+  yBuffer: number;
+  chart: EChartsInstance;
+  mousePixelX?: number;
+  seriesMetadata?: TimeSeriesMetadata[];
+  format?: FormatOptions;
+  selectedSeriesIdx?: number | null;
+}): Candidate[] {
+  const candidates: Candidate[] = [];
+  const totalSeries = data.length;
+  const stackTotals: Map<string, number> = new Map();
+
+  const barSeriesOrder: number[] = seriesMapping.reduce((acc: number[], series, idx) => {
+    const seriesType = (series as { type?: string }).type;
+    if (seriesType === 'bar') acc.push(idx);
+    return acc;
+  }, []);
+
+  // Only need to loop through first dataset source since getCommonTimeScale ensures xAxis timestamps are consistent
+  const firstTimeSeriesValues = data[0]?.values;
+
+  for (let seriesIdx = 0; seriesIdx < totalSeries; seriesIdx++) {
+    const currentSeries = seriesMapping[seriesIdx];
+    const hasCurrentSeries = currentSeries !== undefined;
+
+    if (hasCurrentSeries) {
+      const currentMetadata = seriesMetadata?.[seriesIdx];
+      const currentDataset = totalSeries > 0 ? data[seriesIdx] : undefined;
+
+      if (currentDataset !== undefined && currentDataset !== null) {
+        const currentDatasetValues: TimeSeriesValueTuple[] = currentDataset.values;
+        const hasValidDatasetValues = currentDatasetValues !== undefined && Array.isArray(currentDatasetValues);
+
+        if (hasValidDatasetValues && Array.isArray(data)) {
+          const lineSeries = currentSeries as LineSeriesOption;
+          const seriesType = currentSeries.type ?? 'line';
+          const isBarSeries = seriesType === 'bar';
+          const isLineSeries = seriesType === 'line';
+          const currentSeriesName = lineSeries.name ? lineSeries.name.toString() : '';
+          const markerColor = lineSeries.color ?? '#000';
+          const stackId = lineSeries.stack;
+
+          for (let datumIdx = 0; datumIdx < currentDatasetValues.length; datumIdx++) {
+            const nearbyTimeSeries = currentDatasetValues[datumIdx];
+            const hasValidTimeSeries = nearbyTimeSeries !== undefined && Array.isArray(nearbyTimeSeries);
+
+            if (hasValidTimeSeries) {
+              const xValue = nearbyTimeSeries[0];
+              const yValue = nearbyTimeSeries[1];
+              const hasValidYValue = yValue !== undefined && yValue !== null;
+              const isAtClosestTimestamp = closestTimestamp === xValue;
+
+              if (hasValidYValue && isAtClosestTimestamp) {
+                const visualY = calculateVisualYForSeries({
+                  rawY: yValue,
+                  stackId,
+                  stackTotals,
+                });
+
+                if (isBarSeries) {
+                  const hasValidMousePixelX = mousePixelX !== undefined;
+
+                  if (hasValidMousePixelX) {
+                    const prevTimestamp = firstTimeSeriesValues?.[datumIdx - 1]?.[0];
+                    const nextTimestamp = firstTimeSeriesValues?.[datumIdx + 1]?.[0];
+                    const timestampCenterX = getPixelXFromGrid(chart, xValue);
+
+                    const bandwidth = calculateBarBandwidth({
+                      timestampCenterX,
+                      prevTimestamp,
+                      nextTimestamp,
+                      chart,
+                    });
+
+                    const { segLeft, segRight } = calculateBarSegmentBounds({
+                      timestampCenterX,
+                      bandwidth,
+                      seriesIdx,
+                      barSeriesOrder,
+                    });
+
+                    const { lower, upper } = calculateBarYBounds({
+                      visualY,
+                      rawY: yValue,
+                      isStacked: stackId !== undefined,
+                    });
+
+                    const isHoveringXSegment = mousePixelX >= segLeft && mousePixelX <= segRight;
+                    const isHoveringYBounds = stackId !== undefined ? cursorY >= lower && cursorY <= upper : true;
+                    const isHoveringBar = isHoveringXSegment && isHoveringYBounds;
+
+                    if (isHoveringBar) {
+                      const segmentCenterX = (segLeft + segRight) / 2;
+                      const distance = Math.abs(segmentCenterX - mousePixelX);
+                      const isSelected = selectedSeriesIdx === seriesIdx;
+                      const formattedY = formatValue(yValue, format);
+
+                      candidates.push({
+                        seriesIdx,
+                        datumIdx,
+                        seriesName: currentSeriesName,
+                        date: closestTimestamp,
+                        x: xValue,
+                        y: yValue,
+                        formattedY,
+                        markerColor: markerColor.toString(),
+                        metadata: currentMetadata,
+                        isSelected,
+                        visualY,
+                        distance,
+                      });
+                    }
+                  }
+                } else if (isLineSeries) {
+                  const distance = Math.abs(visualY - cursorY);
+                  const isWithinYBuffer = distance <= yBuffer;
+
+                  if (isWithinYBuffer) {
+                    const isSelected = selectedSeriesIdx === seriesIdx;
+                    const formattedY = formatValue(yValue, format);
+
+                    candidates.push({
+                      seriesIdx,
+                      datumIdx,
+                      seriesName: currentSeriesName,
+                      date: closestTimestamp,
+                      x: xValue,
+                      y: yValue,
+                      formattedY,
+                      markerColor: markerColor.toString(),
+                      metadata: currentMetadata,
+                      isSelected,
+                      visualY,
+                      distance,
+                    });
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  return candidates;
+}
+
+/**
+ * Processes a list of candidates to determine which series to emphasize and formats them for the tooltip.
+ */
+export function processCandidates(
+  candidates: Candidate[],
+  winner: Candidate
+): {
+  currentNearbySeriesData: NearbySeriesArray;
+  emphasizedSeriesIndexes: number[];
+  nonEmphasizedSeriesIndexes: number[];
+  emphasizedDatapoints: DatapointInfo[];
+  duplicateDatapoints: DatapointInfo[];
+  nearbySeriesIndexes: number[];
+} {
+  const currentNearbySeriesData: NearbySeriesArray = [];
+  const emphasizedSeriesIndexes: number[] = [];
+  const nonEmphasizedSeriesIndexes: number[] = [];
+  const emphasizedDatapoints: DatapointInfo[] = [];
+  const duplicateDatapoints: DatapointInfo[] = [];
+  const nearbySeriesIndexes: number[] = candidates.map((c) => c.seriesIdx);
+  const yValueCounts: Map<number, number> = new Map();
+
+  for (const candidate of candidates) {
+    const isClosestToCursor = candidate === winner;
+
+    if (isClosestToCursor) {
+      emphasizedSeriesIndexes.push(candidate.seriesIdx);
+
+      const duplicateValuesCount = yValueCounts.get(candidate.visualY) ?? 0;
+      const hasDuplicateValues = duplicateValuesCount > 0;
+      yValueCounts.set(candidate.visualY, duplicateValuesCount + 1);
+
+      if (hasDuplicateValues) {
+        duplicateDatapoints.push({
+          seriesIndex: candidate.seriesIdx,
+          dataIndex: candidate.datumIdx,
+          seriesName: candidate.seriesName,
+          yValue: candidate.visualY,
+        });
+      }
+
+      emphasizedDatapoints.push({
+        seriesIndex: candidate.seriesIdx,
+        dataIndex: candidate.datumIdx,
+        seriesName: candidate.seriesName,
+        yValue: candidate.visualY,
+      });
+    } else {
+      nonEmphasizedSeriesIndexes.push(candidate.seriesIdx);
+    }
+
+    currentNearbySeriesData.push({
+      seriesIdx: candidate.seriesIdx,
+      datumIdx: candidate.datumIdx,
+      seriesName: candidate.seriesName,
+      date: candidate.date,
+      x: candidate.x,
+      y: candidate.y,
+      formattedY: candidate.formattedY,
+      markerColor: candidate.markerColor,
+      isClosestToCursor,
+      metadata: candidate.metadata,
+      isSelected: candidate.isSelected,
+    });
+  }
+
+  return {
+    currentNearbySeriesData,
+    emphasizedSeriesIndexes,
+    nonEmphasizedSeriesIndexes,
+    emphasizedDatapoints,
+    duplicateDatapoints,
+    nearbySeriesIndexes,
+  };
+}
+
 // LOGZ.IO CHANGE END:: Tooltip is not behaving correctly [APPZ-1418]
