@@ -113,6 +113,7 @@ export function getTooltipStyles(
     maxHeight: adjustedMaxHeight ?? TOOLTIP_MAX_HEIGHT,
     padding: 0,
     position: 'absolute',
+
     top: 0,
     left: 0,
     borderRadius: '6px',
@@ -232,12 +233,14 @@ export function createBarGroupCandidates({
   closestTimestamp,
   hoveredBarInfo,
   selectedSeriesIdx,
+  seriesMetadata,
 }: {
   data: TimeSeries[];
   seriesMapping: TimeChartSeriesMapping;
   closestTimestamp: number;
   hoveredBarInfo: { seriesIdx: number; distance: number };
   selectedSeriesIdx?: number | null;
+  seriesMetadata?: TimeSeriesMetadata[];
 }): Candidate[] {
   const candidates: Candidate[] = [];
   const totalSeries = data.length;
@@ -280,6 +283,8 @@ export function createBarGroupCandidates({
               stackTotals,
             });
 
+            const currentMetadata = seriesMetadata?.[seriesIdx];
+
             let seriesName: string;
             if (currentSeries.name !== undefined) {
               seriesName = String(currentSeries.name);
@@ -306,6 +311,7 @@ export function createBarGroupCandidates({
               visualY,
               distance,
               isSelected,
+              metadata: currentMetadata,
             });
           }
         }
@@ -532,6 +538,7 @@ export function gatherCandidates({
       closestTimestamp,
       hoveredBarInfo,
       selectedSeriesIdx,
+      seriesMetadata,
     });
   }
 
