@@ -113,7 +113,6 @@ export function getTooltipStyles(
     maxHeight: adjustedMaxHeight ?? TOOLTIP_MAX_HEIGHT,
     padding: 0,
     position: 'absolute',
-
     top: 0,
     left: 0,
     borderRadius: '6px',
