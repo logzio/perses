@@ -22,6 +22,7 @@ export type Candidate = Omit<NearbySeriesInfo, 'isClosestToCursor' | 'seriesIdx'
   datumIdx: number;
   visualY: number;
   distance: number;
+  isSelected: boolean;
 };
 
 export type CalculateVisualYForSeriesParams = {
@@ -60,4 +61,22 @@ export type BarYBounds = {
   base: number;
   lower: number;
   upper: number;
+};
+
+/**
+ * Parameters for isWithinPercentageRange function
+ */
+export type IsWithinPercentageRangeParams = {
+  valueToCheck: number;
+  baseValue: number;
+  percentage: number;
+};
+
+/**
+ * Parameters for getYBuffer function
+ */
+export type GetYBufferParams = {
+  yInterval: number;
+  totalSeries: number;
+  showAllSeries?: boolean;
 };

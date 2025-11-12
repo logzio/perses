@@ -67,7 +67,6 @@ export function checkforNearbyTimeSeries(
     chart,
     mousePixelX,
     seriesMetadata,
-    format,
     selectedSeriesIdx,
   });
 
@@ -85,7 +84,7 @@ export function checkforNearbyTimeSeries(
     emphasizedDatapoints,
     duplicateDatapoints,
     nearbySeriesIndexes,
-  } = processCandidates(candidates, winner);
+  } = processCandidates(candidates, winner, format);
 
   // LOGZ.IO CHANGE END:: Tooltip is not behaving correctly [APPZ-1418]
 
