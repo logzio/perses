@@ -12,9 +12,15 @@
 // limitations under the License.
 
 import { ECharts as EChartsInstance } from 'echarts/core';
-import { LineSeriesOption } from 'echarts/charts';
+import { LineSeriesOption, BarSeriesOption } from 'echarts/charts';
 import { formatValue, TimeSeriesValueTuple, FormatOptions, TimeSeries } from '@perses-dev/core';
-import { EChartsDataFormat, OPTIMIZED_MODE_SERIES_LIMIT, TimeChartSeriesMapping, DatapointInfo } from '../model';
+import {
+  EChartsDataFormat,
+  OPTIMIZED_MODE_SERIES_LIMIT,
+  TimeChartSeriesMapping,
+  DatapointInfo,
+  TimeSeriesOption,
+} from '../model';
 import { batchDispatchNearbySeriesActions, getPointInGrid, getClosestTimestamp } from '../utils';
 import { CursorCoordinates, CursorData, EMPTY_TOOLTIP_DATA } from './tooltip-model';
 
@@ -74,6 +80,99 @@ export function checkforNearbyTimeSeries(
 
   if (closestTimestamp === null) {
     return EMPTY_TOOLTIP_DATA;
+  }
+
+  // Handle stacked bar charts by selecting the segment under the cursor Y
+  const isBarSeries = (option: TimeSeriesOption | undefined): option is BarSeriesOption => option?.type === 'bar';
+  const isStackedBarMode = seriesMapping.some((series) => isBarSeries(series) && series.stack === 'all');
+  if (isStackedBarMode) {
+    // Find index of the closest timestamp in the first series
+    let timestampIndex = -1;
+    const sampleValues: TimeSeriesValueTuple[] | undefined = data[0]?.values;
+    if (Array.isArray(sampleValues)) {
+      for (let i = 0; i < sampleValues.length; i++) {
+        if (sampleValues[i]?.[0] === closestTimestamp) {
+          timestampIndex = i;
+          break;
+        }
+      }
+    }
+    if (timestampIndex === -1) return EMPTY_TOOLTIP_DATA;
+
+    // Determine which stacked segment contains the cursor Y
+    let cumulativePositiveY = 0;
+    let cumulativeNegativeY = 0;
+    let selectedSeriesIndex: number | null = null;
+
+    for (let seriesIndex = 0; seriesIndex < totalSeries; seriesIndex++) {
+      const seriesOption = seriesMapping[seriesIndex];
+      if (!isBarSeries(seriesOption)) continue;
+      const seriesTuple = data[seriesIndex]?.values?.[timestampIndex];
+      if (!seriesTuple) continue;
+      const valueAtTimestamp = seriesTuple[1];
+      if (typeof valueAtTimestamp !== 'number') continue;
+
+      let segmentStartY: number;
+      let segmentEndY: number;
+      if (valueAtTimestamp >= 0) {
+        segmentStartY = cumulativePositiveY;
+        segmentEndY = cumulativePositiveY + valueAtTimestamp;
+        cumulativePositiveY = segmentEndY;
+      } else {
+        segmentStartY = cumulativeNegativeY + valueAtTimestamp;
+        segmentEndY = cumulativeNegativeY;
+        cumulativeNegativeY = segmentStartY;
+      }
+      const minY = Math.min(segmentStartY, segmentEndY);
+      const maxY = Math.max(segmentStartY, segmentEndY);
+      if (cursorY >= minY && cursorY <= maxY) {
+        selectedSeriesIndex = seriesIndex;
+      }
+    }
+
+    // Build tooltip data for all series at this timestamp
+    for (let seriesIndex = 0; seriesIndex < totalSeries; seriesIndex++) {
+      const seriesOption = seriesMapping[seriesIndex];
+      if (!data[seriesIndex]) continue;
+      const seriesTuple = data[seriesIndex]?.values?.[timestampIndex];
+      if (!seriesTuple) continue;
+      const yVal = seriesTuple[1];
+      if (typeof yVal !== 'number') continue;
+
+      const isClosestToCursor = selectedSeriesIndex === seriesIndex;
+      if (isClosestToCursor) {
+        emphasizedSeriesIndexes.push(seriesIndex);
+      } else {
+        nonEmphasizedSeriesIndexes.push(seriesIndex);
+      }
+      nearbySeriesIndexes.push(seriesIndex);
+
+      const seriesName = ((seriesOption as LineSeriesOption).name ?? '').toString();
+      const markerColor = (((seriesOption as LineSeriesOption).color ?? '#000') as string).toString();
+      const formattedY = formatValue(yVal, format);
+      currentNearbySeriesData.push({
+        seriesIdx: seriesIndex,
+        datumIdx: timestampIndex,
+        seriesName,
+        date: closestTimestamp,
+        x: seriesTuple[0],
+        y: yVal,
+        formattedY,
+        markerColor,
+        isClosestToCursor,
+      });
+    }
+
+    batchDispatchNearbySeriesActions(
+      chart,
+      nearbySeriesIndexes,
+      emphasizedSeriesIndexes,
+      nonEmphasizedSeriesIndexes,
+      emphasizedDatapoints,
+      duplicateDatapoints
+    );
+
+    return currentNearbySeriesData;
   }
 
   // find the timestamp with data that is closest to cursorX
