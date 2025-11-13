@@ -142,7 +142,6 @@ export type TooltipConfig = {
   wrapLabels: boolean;
   hidden?: boolean;
   enablePinning?: boolean;
-  useCustomForStackedBar?: boolean;
 };
 
 export const DEFAULT_TOOLTIP_CONFIG: TooltipConfig = {

@@ -239,9 +239,9 @@ export const TimeChart = forwardRef<ChartInstance, TimeChartProps>(function Time
       animation: false,
       tooltip: {
         show: true,
-        showContent: isStackedBar && tooltipConfig.useCustomForStackedBar === false,
-        trigger: isStackedBar && tooltipConfig.useCustomForStackedBar === false ? 'item' : 'axis',
-        appendToBody: isStackedBar && tooltipConfig.useCustomForStackedBar === false,
+        showContent: false,
+        trigger: 'axis',
+        appendToBody: false,
       },
       // https://echarts.apache.org/en/option.html#axisPointer
       axisPointer: {
