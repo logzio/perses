@@ -13,11 +13,12 @@
 
 import { Grid, Typography } from '@mui/material';
 import { ErrorAlert, ErrorBoundary } from '@perses-dev/components';
-import { PanelEditorContext, PanelPreview } from '@perses-dev/dashboards';
 import { DataQueriesProvider, PanelSpecEditor, usePlugin, useSuggestedStepMs } from '@perses-dev/plugin-system';
 import { Definition, PanelDefinition, PanelEditorValues, QueryDefinition, UnknownSpec } from '@perses-dev/core';
 import { Control } from 'react-hook-form';
 import { ReactElement, useContext } from 'react';
+import { PanelEditorContext } from '../../context';
+import { PanelPreview } from './PanelPreview';
 
 export interface PanelQueriesSharedControlsProps {
   control: Control<PanelEditorValues>;
