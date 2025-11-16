@@ -11,7 +11,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { formatValue, useDeepMemo, FormatOptions } from '@perses-dev/core';
+import { formatValue, FormatOptions } from '@perses-dev/core';
 import { use, EChartsCoreOption } from 'echarts/core';
 import { GaugeChart as EChartsGaugeChart, GaugeSeriesOption } from 'echarts/charts';
 import { GridComponent, TitleComponent, TooltipComponent } from 'echarts/components';
@@ -19,6 +19,7 @@ import { CanvasRenderer } from 'echarts/renderers';
 import { ReactElement } from 'react';
 import { useChartsTheme } from '../context';
 import { EChart } from '../EChart';
+import { useDeepMemo } from '../utils';
 
 use([EChartsGaugeChart, GridComponent, TitleComponent, TooltipComponent, CanvasRenderer]);
 

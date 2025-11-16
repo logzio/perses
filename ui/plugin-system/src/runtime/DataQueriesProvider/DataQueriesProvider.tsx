@@ -15,8 +15,10 @@ import { createContext, ReactElement, useCallback, useContext, useMemo } from 'r
 import { QueryType, TimeSeriesQueryDefinition } from '@perses-dev/core';
 import { useTimeSeriesQueries } from '../time-series-queries';
 import { useTraceQueries, TraceQueryDefinition } from '../trace-queries';
+import { useProfileQueries, ProfileQueryDefinition } from '../profile-queries';
 
 import { useUsageMetrics } from '../UsageMetricsProvider';
+import { LogQueryDefinition, useLogQueries } from '../log-queries';
 import {
   DataQueriesProviderProps,
   UseDataQueryResults,
@@ -82,20 +84,33 @@ export function DataQueriesProvider(props: DataQueriesProviderProps): ReactEleme
     (definition) => definition.kind === 'TimeSeriesQuery'
   ) as TimeSeriesQueryDefinition[];
   const timeSeriesResults = useTimeSeriesQueries(timeSeriesQueries, options, queryOptions);
+
   const traceQueries = queryDefinitions.filter(
     (definition) => definition.kind === 'TraceQuery'
   ) as TraceQueryDefinition[];
   const traceResults = useTraceQueries(traceQueries);
 
+  const profileQueries = queryDefinitions.filter(
+    (definition) => definition.kind === 'ProfileQuery'
+  ) as ProfileQueryDefinition[];
+  const profileResults = useProfileQueries(profileQueries);
+
+  const logQueries = queryDefinitions.filter((definition) => definition.kind === 'LogQuery') as LogQueryDefinition[];
+  const logResults = useLogQueries(logQueries);
+
   const refetchAll = useCallback(() => {
     timeSeriesResults.forEach((result) => result.refetch());
     traceResults.forEach((result) => result.refetch());
-  }, [timeSeriesResults, traceResults]);
+    profileResults.forEach((result) => result.refetch());
+    logResults.forEach((result) => result.refetch());
+  }, [timeSeriesResults, traceResults, profileResults, logResults]);
 
   const ctx = useMemo(() => {
     const mergedQueryResults = [
       ...transformQueryResults(timeSeriesResults, timeSeriesQueries),
       ...transformQueryResults(traceResults, traceQueries),
+      ...transformQueryResults(profileResults, profileQueries),
+      ...transformQueryResults(logResults, logQueries),
     ];
 
     if (queryOptions?.enabled) {
@@ -122,6 +137,10 @@ export function DataQueriesProvider(props: DataQueriesProviderProps): ReactEleme
     timeSeriesResults,
     traceQueries,
     traceResults,
+    profileQueries,
+    profileResults,
+    logQueries,
+    logResults,
     refetchAll,
     queryOptions?.enabled,
     usageMetrics,

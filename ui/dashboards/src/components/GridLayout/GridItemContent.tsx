@@ -1,4 +1,4 @@
-// Copyright 2023 The Perses Authors
+// Copyright 2025 The Perses Authors
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
@@ -14,10 +14,11 @@
 import { Box } from '@mui/material';
 import { useInView } from 'react-intersection-observer';
 import { DataQueriesProvider, usePlugin, useSuggestedStepMs } from '@perses-dev/plugin-system';
-import { ReactElement } from 'react';
-import { PanelGroupItemId, useEditMode, usePanel, usePanelActions, useViewPanelGroup } from '../../context';
+import React, { ReactElement, useMemo, useState } from 'react';
+import { isPanelGroupItemIdEqual, PanelGroupItemId } from '@perses-dev/core';
+import { useEditMode, usePanel, usePanelActions, useViewPanelGroup } from '../../context';
 import { Panel, PanelProps, PanelOptions } from '../Panel';
-import { isPanelGroupItemIdEqual } from '../../context/DashboardProvider/panel-group-slice';
+import { QueryViewerDialog } from '../QueryViewerDialog';
 
 export interface GridItemContentProps {
   panelGroupItemId: PanelGroupItemId;
@@ -31,9 +32,11 @@ export interface GridItemContentProps {
 export function GridItemContent(props: GridItemContentProps): ReactElement {
   const { panelGroupItemId, width } = props;
   const panelDefinition = usePanel(panelGroupItemId);
+
   const {
     spec: { queries },
   } = panelDefinition;
+
   const { isEditMode } = useEditMode();
   const { openEditPanel, openDeletePanelDialog, duplicatePanel, viewPanel } = usePanelActions(panelGroupItemId);
   const viewPanelGroupItemId = useViewPanelGroup();
@@ -42,6 +45,18 @@ export function GridItemContent(props: GridItemContentProps): ReactElement {
     initialInView: false,
     triggerOnce: true,
   });
+
+  const [openQueryViewer, setOpenQueryViewer] = useState(false);
+
+  const viewQueriesHandler = useMemo(() => {
+    return isEditMode || !queries?.length
+      ? undefined
+      : {
+          onClick: (): void => {
+            setOpenQueryViewer(true);
+          },
+        };
+  }, [isEditMode, queries]);
 
   const readHandlers = {
     isPanelViewed: isPanelGroupItemIdEqual(viewPanelGroupItemId, panelGroupItemId),
@@ -76,6 +91,7 @@ export function GridItemContent(props: GridItemContentProps): ReactElement {
       spec: query.spec.plugin.spec,
     };
   });
+
   const pluginQueryOptions =
     typeof plugin?.queryOptions === 'function'
       ? plugin?.queryOptions(panelDefinition.spec.plugin.spec)
@@ -99,11 +115,17 @@ export function GridItemContent(props: GridItemContentProps): ReactElement {
             definition={panelDefinition}
             readHandlers={readHandlers}
             editHandlers={editHandlers}
+            viewQueriesHandler={viewQueriesHandler}
             panelOptions={props.panelOptions}
             panelGroupItemId={panelGroupItemId}
           />
         )}
       </DataQueriesProvider>
+      <QueryViewerDialog
+        open={openQueryViewer}
+        queryDefinitions={queryDefinitions}
+        onClose={() => setOpenQueryViewer(false)}
+      />
     </Box>
   );
 }

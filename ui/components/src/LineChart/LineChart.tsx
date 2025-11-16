@@ -107,13 +107,13 @@ export const LineChart = forwardRef<ChartInstance, LineChartProps>(function Line
 
   useImperativeHandle(ref, () => {
     return {
-      highlightSeries({ id }: ChartInstanceFocusOpts): void {
+      highlightSeries({ name }: ChartInstanceFocusOpts): void {
         if (!chartRef.current) {
           // when chart undef, do not highlight series when hovering over legend
           return;
         }
 
-        chartRef.current.dispatchAction({ type: 'highlight', seriesId: id });
+        chartRef.current.dispatchAction({ type: 'highlight', seriesId: name });
       },
       clearHighlightedSeries: (): void => {
         if (!chartRef.current) {
@@ -148,8 +148,6 @@ export const LineChart = forwardRef<ChartInstance, LineChartProps>(function Line
           const zoomEvent: ZoomEventData = {
             start: xAxisStartValue,
             end: xAxisEndValue,
-            startIndex,
-            endIndex,
           };
           onDataZoom(zoomEvent);
         }
