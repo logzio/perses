@@ -64,6 +64,11 @@ use([
   CanvasRenderer,
 ]);
 
+const SX = {
+  width: '100%',
+  height: '100%',
+};
+
 export interface LineChartProps {
   height: number;
   data: EChartsDataFormat;
@@ -312,10 +317,7 @@ export const LineChart = forwardRef<ChartInstance, LineChartProps>(function Line
           />
         )}
       <EChart
-        sx={{
-          width: '100%',
-          height: '100%',
-        }}
+        sx={SX}
         option={option}
         theme={chartsTheme.echartsTheme}
         onEvents={handleEvents}

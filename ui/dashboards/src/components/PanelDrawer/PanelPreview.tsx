@@ -22,6 +22,7 @@ const PANEL_PREVIEW_DEFAULT_WIDTH = 840;
 
 export function PanelPreview({ panelDefinition }: Pick<PanelEditorValues, 'panelDefinition'>): ReactElement | null {
   const boxRef = useRef<HTMLDivElement>(null);
+
   let width = PANEL_PREVIEW_DEFAULT_WIDTH;
 
   const panelEditorContext = useContext(PanelEditorContext);

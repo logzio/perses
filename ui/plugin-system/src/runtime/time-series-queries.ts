@@ -17,12 +17,12 @@ import {
   QueryCache,
   QueryKey,
   QueryObserverOptions,
-  useQueries,
   useQuery,
   useQueryClient,
   UseQueryResult,
 } from '@tanstack/react-query';
 import { TimeSeriesDataQuery, TimeSeriesQueryContext, TimeSeriesQueryMode, TimeSeriesQueryPlugin } from '../model';
+import { useStableQueries } from '../hooks';
 import { useTimeRange } from './TimeRangeProvider';
 import { useDatasourceStore } from './datasources';
 import { usePlugin, usePluginRegistry, usePlugins } from './plugin-registry';
@@ -127,7 +127,8 @@ export function useTimeSeriesQueries(
     definitions.map((d) => ({ kind: d.spec.plugin.kind }))
   );
 
-  return useQueries({
+  // LOGZ.IO CHANGE:: Performance optimization [APPZ-359] useStableQueries()
+  return useStableQueries({
     queries: definitions.map((definition, idx) => {
       const plugin = pluginLoaderResponse[idx]?.data;
       const { queryEnabled, queryKey } = getQueryOptions({ plugin, definition, context });

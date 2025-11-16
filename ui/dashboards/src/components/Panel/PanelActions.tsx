@@ -24,8 +24,9 @@ import DragIcon from 'mdi-material-ui/DragVertical';
 import ContentCopyIcon from 'mdi-material-ui/ContentCopy';
 import MenuIcon from 'mdi-material-ui/Menu';
 import AlertIcon from 'mdi-material-ui/Alert';
+import AlertCircleIcon from 'mdi-material-ui/AlertCircle';
 import InformationOutlineIcon from 'mdi-material-ui/InformationOutline';
-import { Link } from '@perses-dev/core';
+import { Link, Notice } from '@perses-dev/core';
 import {
   ARIA_LABEL_TEXT,
   HEADER_ACTIONS_CONTAINER_NAME,
@@ -36,6 +37,14 @@ import {
 import { HeaderIconButton } from './HeaderIconButton';
 import { PanelLinks } from './PanelLinks';
 import { PanelOptions } from './Panel';
+
+// LOGZ.IO CHANGE START:: Performance optimization [APPZ-359]
+const noticeTypeToIcon: Record<Notice['type'], ReactNode> = {
+  error: <AlertCircleIcon color="error" />,
+  warning: <AlertIcon fontSize="inherit" color="warning" />,
+  info: <InformationOutlineIcon fontSize="inherit" color="info" />,
+};
+// LOGZ.IO CHANGE END:: Performance optimization [APPZ-359]
 
 export interface PanelActionsProps {
   title: string;
@@ -129,7 +138,27 @@ export const PanelActions: React.FC<PanelActionsProps> = ({
     }
   }, [queryResults]);
 
-  const readActions = useMemo((): ReactNode | undefined => {
+  // LOGZ.IO CHANGE START:: Performance optimization [APPZ-359]
+  const noticesIndicator = useMemo(() => {
+    const notices = queryResults.flatMap((q) => {
+      return q.data?.metadata?.notices ?? [];
+    });
+
+    if (notices.length > 0) {
+      const lastNotice = notices[notices.length - 1]!;
+
+      return (
+        <InfoTooltip description={lastNotice.message}>
+          <HeaderIconButton aria-label="panel notices" size="small">
+            {noticeTypeToIcon[lastNotice.type]}
+          </HeaderIconButton>
+        </InfoTooltip>
+      );
+    }
+  }, [queryResults]);
+  // LOGZ.IO CHANGE END:: Performance optimization [APPZ-359]
+
+  const readActions = useMemo(() => {
     if (readHandlers !== undefined) {
       return (
         <InfoTooltip description={TOOLTIP_TEXT.viewPanel}>
@@ -240,7 +269,7 @@ export const PanelActions: React.FC<PanelActionsProps> = ({
         {divider}
         <OnHover>
           <OverflowMenu title={title}>
-            {descriptionAction} {linksAction} {queryStateIndicator} {extraActions} {viewQueryAction}
+            {descriptionAction} {linksAction} {queryStateIndicator} {noticesIndicator} {extraActions} {viewQueryAction}
             {readActions} {pluginActions}
             {editActions}
           </OverflowMenu>
@@ -260,6 +289,7 @@ export const PanelActions: React.FC<PanelActionsProps> = ({
           {descriptionAction} {linksAction}
         </OnHover>
         {divider} {queryStateIndicator}
+        {noticesIndicator}
         <OnHover>
           {extraActions}
           {readActions}
@@ -282,6 +312,7 @@ export const PanelActions: React.FC<PanelActionsProps> = ({
           {descriptionAction} {linksAction}
         </OnHover>
         {divider} {queryStateIndicator}
+        {noticesIndicator}
         <OnHover>
           {extraActions}
           {viewQueryAction}

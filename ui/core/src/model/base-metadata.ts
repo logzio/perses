@@ -11,14 +11,21 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export * from './LineChartTooltip';
-export * from './SeriesInfo';
-export * from './SeriesLabelsStack';
-export * from './SeriesMarker';
-export * from './TimeChartTooltip';
-export * from './TooltipContent';
-export * from './TooltipHeader';
-export * from './nearby-series';
-export * from './tooltip-model';
-export * from './utils';
-export * from './types';
+import { Notice } from './notice';
+
+export interface BaseMetadata {
+  /**
+   * A list of notices to display in the panel.
+   * These notices are passed down to the panel header
+   * and can be used to inform the user about important
+   * states, warnings, or messages related to the panel’s data or configuration.
+   */
+  notices?: Notice[];
+
+  /**
+   * The raw query that is executed to generate this data.
+   * Useful when needing to inspect the query that was executed
+   * after variables and other context modifications have been applied.
+   */
+  executedQueryString?: string;
+}
