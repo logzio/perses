@@ -11,7 +11,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, ReactNode } from 'react';
 import { NearbySeriesArray, NearbySeriesInfo } from './types';
 
 export const TOOLTIP_MIN_WIDTH = 375;
@@ -130,13 +130,6 @@ export const useMousePosition = (): CursorData['coords'] => {
 
   return coords;
 };
-// LOGZ.IO CHANGE START:: Drilldown panel [APPZ-377]
-export type PointAction = {
-  label: string;
-  onClick: (point: NearbySeriesInfo) => void;
-  icon?: React.JSX.Element;
-};
-// LOGZ.IO CHANGE END:: Drilldown panel [APPZ-377]
 
 export type TooltipConfig = {
   wrapLabels: boolean;
@@ -149,7 +142,15 @@ export const DEFAULT_TOOLTIP_CONFIG: TooltipConfig = {
   enablePinning: true,
 };
 
-// LOGZ.IO CHANGE START:: Drilldown panel [APPZ-377]
+export const PIN_TOOLTIP_HELP_TEXT = 'Click chart to pin';
+
+export const UNPIN_TOOLTIP_HELP_TEXT = 'Click chart to unpin';
+
+export type PointAction = {
+  label: string;
+  onClick: (series: NearbySeriesInfo) => void;
+  icon?: ReactNode;
+};
+
 export const DRILLDOWN_HELP_TEXT = 'Click To Drilldown';
 export const SELECT_SERIES_HELP_TEXT = 'Select a series to drilldown';
-// LOGZ.IO CHANGE END:: Drilldown panel [APPZ-377]

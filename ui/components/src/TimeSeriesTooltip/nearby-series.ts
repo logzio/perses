@@ -12,18 +12,23 @@
 // limitations under the License.
 
 import { ECharts as EChartsInstance } from 'echarts/core';
-import { formatValue, FormatOptions, TimeSeries, TimeSeriesMetadata } from '@perses-dev/core';
-import { EChartsDataFormat, OPTIMIZED_MODE_SERIES_LIMIT, TimeChartSeriesMapping } from '../model';
+import { LineSeriesOption, BarSeriesOption } from 'echarts/charts';
+import { formatValue, TimeSeriesValueTuple, FormatOptions, TimeSeries, TimeSeriesMetadata } from '@perses-dev/core';
+import {
+  EChartsDataFormat,
+  OPTIMIZED_MODE_SERIES_LIMIT,
+  TimeChartSeriesMapping,
+  DatapointInfo,
+  TimeSeriesOption,
+} from '../model';
 import { batchDispatchNearbySeriesActions, getPointInGrid, getClosestTimestamp } from '../utils';
 import { CursorCoordinates, CursorData, EMPTY_TOOLTIP_DATA } from './tooltip-model';
 import { NearbySeriesArray } from './types';
 import { gatherCandidates, findClosestCandidate, processCandidates } from './utils';
 
-// LOGZ.IO CHANGE START:: Tooltip is not behaving correctly [APPZ-1418]
-
 // increase multipliers to show more series in tooltip
-export const INCREASE_NEARBY_SERIES_MULTIPLIER = 1; // adjusts how many series show in tooltip (higher == more series shown)
-export const DYNAMIC_NEARBY_SERIES_MULTIPLIER = 10; // used for adjustment after series number divisor
+export const INCREASE_NEARBY_SERIES_MULTIPLIER = 5.5; // adjusts how many series show in tooltip (higher == more series shown)
+export const DYNAMIC_NEARBY_SERIES_MULTIPLIER = 30; // used for adjustment after series number divisor
 export const SHOW_FEWER_SERIES_LIMIT = 5;
 
 /**
@@ -36,9 +41,9 @@ export function checkforNearbyTimeSeries(
   pointInGrid: number[],
   yBuffer: number,
   chart: EChartsInstance,
+  format?: FormatOptions,
   mousePixelX?: number,
   seriesMetadata?: TimeSeriesMetadata[],
-  format?: FormatOptions,
   selectedSeriesIdx?: number | null
 ): NearbySeriesArray {
   const cursorX: number | null = pointInGrid[0] ?? null;
@@ -50,7 +55,6 @@ export function checkforNearbyTimeSeries(
 
   if (!Array.isArray(data)) return EMPTY_TOOLTIP_DATA;
 
-  // Only need to loop through first dataset source since getCommonTimeScale ensures xAxis timestamps are consistent
   const firstTimeSeriesValues = data[0]?.values;
   const closestTimestamp = getClosestTimestamp(firstTimeSeriesValues, cursorX);
 
@@ -75,7 +79,6 @@ export function checkforNearbyTimeSeries(
   }
 
   const winner = findClosestCandidate(candidates);
-
   const {
     currentNearbySeriesData,
     emphasizedSeriesIndexes,
@@ -84,8 +87,6 @@ export function checkforNearbyTimeSeries(
     duplicateDatapoints,
     nearbySeriesIndexes,
   } = processCandidates(candidates, winner, format);
-
-  // LOGZ.IO CHANGE END:: Tooltip is not behaving correctly [APPZ-1418]
 
   batchDispatchNearbySeriesActions(
     chart,
@@ -171,7 +172,7 @@ export function legacyCheckforNearbySeries(
                 formattedY: formattedY,
                 markerColor: markerColor.toString(),
                 isClosestToCursor,
-                isSelected: false, // LOGZ.IO CHANGE:: Drilldown panel [APPZ-377]
+                isSelected: false,
               });
               nearbySeriesIndexes.push(seriesIdx);
             }
@@ -223,10 +224,9 @@ export function getNearbySeriesData({
   chart,
   format,
   showAllSeries = false,
-  // LOGZ.IO CHANGE START:: Drilldown panel [APPZ-377]
+  // LOGZ.IO CHANGE:: annotate series with metadata and selection state
   seriesMetadata,
   selectedSeriesIdx,
-  // LOGZ.IO CHANGE END:: Drilldown panel [APPZ-377]
 }: {
   mousePos: CursorData['coords'];
   pinnedPos: CursorCoordinates | null;
@@ -235,10 +235,8 @@ export function getNearbySeriesData({
   chart?: EChartsInstance;
   format?: FormatOptions;
   showAllSeries?: boolean;
-  // LOGZ.IO CHANGE START:: Drilldown panel [APPZ-377]
   seriesMetadata?: TimeSeriesMetadata[];
   selectedSeriesIdx?: number | null;
-  // LOGZ.IO CHANGE END:: Drilldown panel [APPZ-377]
 }): NearbySeriesArray {
   if (chart === undefined || mousePos === null) return EMPTY_TOOLTIP_DATA;
 
@@ -274,19 +272,15 @@ export function getNearbySeriesData({
     const yInterval = chartModel.getComponent('yAxis').axis.scale._interval;
     const totalSeries = data.length;
     const yBuffer = getYBuffer({ yInterval, totalSeries, showAllSeries });
-    return checkforNearbyTimeSeries(
-      data,
-      seriesMapping,
-      pointInGrid,
-      yBuffer,
-      chart,
-      // LOGZ.IO CHANGE START:: Drilldown panel [APPZ-377]
-      mousePos.plotCanvas.x,
-      seriesMetadata,
-      format,
-      selectedSeriesIdx
-      // LOGZ.IO CHANGE END:: Drilldown panel [APPZ-377]
-    );
+    const base = checkforNearbyTimeSeries(data, seriesMapping, pointInGrid, yBuffer, chart, format);
+    return base.map((item) => {
+      const idx = item.seriesIdx ?? -1;
+      return {
+        ...item,
+        isSelected: selectedSeriesIdx !== null && selectedSeriesIdx !== undefined && idx === selectedSeriesIdx,
+        metadata: idx >= 0 ? seriesMetadata?.[idx] : undefined,
+      };
+    });
   }
 
   // no nearby series found
