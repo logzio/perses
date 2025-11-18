@@ -12,15 +12,8 @@
 // limitations under the License.
 
 import { ECharts as EChartsInstance } from 'echarts/core';
-import { LineSeriesOption, BarSeriesOption } from 'echarts/charts';
-import { formatValue, TimeSeriesValueTuple, FormatOptions, TimeSeries, TimeSeriesMetadata } from '@perses-dev/core';
-import {
-  EChartsDataFormat,
-  OPTIMIZED_MODE_SERIES_LIMIT,
-  TimeChartSeriesMapping,
-  DatapointInfo,
-  TimeSeriesOption,
-} from '../model';
+import { formatValue, FormatOptions, TimeSeries, TimeSeriesMetadata } from '@perses-dev/core';
+import { EChartsDataFormat, OPTIMIZED_MODE_SERIES_LIMIT, TimeChartSeriesMapping } from '../model';
 import { batchDispatchNearbySeriesActions, getPointInGrid, getClosestTimestamp } from '../utils';
 import { CursorCoordinates, CursorData, EMPTY_TOOLTIP_DATA } from './tooltip-model';
 import { NearbySeriesArray } from './types';
@@ -272,15 +265,18 @@ export function getNearbySeriesData({
     const yInterval = chartModel.getComponent('yAxis').axis.scale._interval;
     const totalSeries = data.length;
     const yBuffer = getYBuffer({ yInterval, totalSeries, showAllSeries });
-    const base = checkforNearbyTimeSeries(data, seriesMapping, pointInGrid, yBuffer, chart, format);
-    return base.map((item) => {
-      const idx = item.seriesIdx ?? -1;
-      return {
-        ...item,
-        isSelected: selectedSeriesIdx !== null && selectedSeriesIdx !== undefined && idx === selectedSeriesIdx,
-        metadata: idx >= 0 ? seriesMetadata?.[idx] : undefined,
-      };
-    });
+    const base = checkforNearbyTimeSeries(
+      data,
+      seriesMapping,
+      pointInGrid,
+      yBuffer,
+      chart,
+      format,
+      mousePos.plotCanvas.x,
+      seriesMetadata,
+      selectedSeriesIdx
+    );
+    return base;
   }
 
   // no nearby series found
