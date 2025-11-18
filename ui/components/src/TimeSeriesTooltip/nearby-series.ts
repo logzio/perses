@@ -20,8 +20,8 @@ import { NearbySeriesArray } from './types';
 import { gatherCandidates, findClosestCandidate, processCandidates } from './utils';
 
 // increase multipliers to show more series in tooltip
-export const INCREASE_NEARBY_SERIES_MULTIPLIER = 5.5; // adjusts how many series show in tooltip (higher == more series shown)
-export const DYNAMIC_NEARBY_SERIES_MULTIPLIER = 30; // used for adjustment after series number divisor
+export const INCREASE_NEARBY_SERIES_MULTIPLIER = 1; // adjusts how many series show in tooltip (higher == more series shown)
+export const DYNAMIC_NEARBY_SERIES_MULTIPLIER = 10; // used for adjustment after series number divisor
 export const SHOW_FEWER_SERIES_LIMIT = 5;
 
 /**
