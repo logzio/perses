@@ -245,8 +245,6 @@ export const PanelActions: React.FC<PanelActionsProps> = ({
           <OverflowMenu title={title}>
             {descriptionAction} {linksAction} {queryStateIndicator} {noticesIndicator} {extraActions} {readActions}{' '}
             {editActions}
-            {descriptionAction} {linksAction} {queryStateIndicator} {noticesIndicator} {extraActions} {readActions}{' '}
-            {editActions}
           </OverflowMenu>
           {moveAction}
         </OnHover>
