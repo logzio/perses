@@ -85,7 +85,6 @@ export interface TimeChartProps {
   tooltipConfig?: TooltipConfig;
   noDataVariant?: 'chart' | 'message';
   syncGroup?: string;
-  isStackedBar?: boolean;
   onDataZoom?: (e: ZoomEventData) => void;
   onDoubleClick?: (e: MouseEvent) => void;
   __experimentalEChartsOptionsOverride?: (options: EChartsCoreOption) => EChartsCoreOption;
@@ -101,7 +100,6 @@ export const TimeChart = forwardRef<ChartInstance, TimeChartProps>(function Time
     yAxis,
     format,
     grid,
-    isStackedBar = false,
     tooltipConfig = DEFAULT_TOOLTIP_CONFIG,
     noDataVariant = 'message',
     syncGroup,
