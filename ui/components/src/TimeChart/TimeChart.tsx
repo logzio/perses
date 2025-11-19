@@ -239,10 +239,12 @@ export const TimeChart = forwardRef<ChartInstance, TimeChartProps>(function Time
       animation: false,
       tooltip: {
         show: true,
+        // LOGZ.IO CHANGE START:: Calculate stacked bar [APPZ-1418]
         // ECharts tooltip content hidden by default since we use custom tooltip instead.
         showContent: false,
         trigger: 'axis',
         appendToBody: false,
+        // LOGZ.IO CHANGE END:: Calculate stacked bar [APPZ-1418]
       },
       // https://echarts.apache.org/en/option.html#axisPointer
       axisPointer: {

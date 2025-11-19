@@ -36,6 +36,14 @@ import {
   NearbySeriesArray,
 } from './types';
 
+function isBarSeriesOption(series: LineSeriesOption | BarSeriesOption): series is BarSeriesOption {
+  return series.type === 'bar';
+}
+
+function isLineSeriesOption(series: LineSeriesOption | BarSeriesOption): series is LineSeriesOption {
+  return series.type === 'line' || series.type === undefined;
+}
+
 /**
  * Determine position of tooltip depending on chart dimensions and the number of focused series
  */
@@ -284,7 +292,11 @@ export function createBarGroupCandidates({
               distance = Infinity;
             }
 
-            const stackId = (currentSeries as LineSeriesOption | BarSeriesOption).stack;
+            let stackId: string | undefined;
+            if (isBarSeriesOption(currentSeries)) {
+              stackId = currentSeries.stack;
+            }
+
             const visualY = calculateVisualYForSeries({
               rawY: yValue,
               stackId,
@@ -433,7 +445,11 @@ export function gatherCandidates({
             }
 
             if (seriesType === 'line') {
-              const stackId = (currentSeries as LineSeriesOption).stack;
+              let stackId: string | undefined;
+              if (isLineSeriesOption(currentSeries)) {
+                stackId = currentSeries.stack;
+              }
+
               const visualY = calculateVisualYForSeries({
                 rawY: yValue,
                 stackId,
@@ -497,8 +513,13 @@ export function gatherCandidates({
                   chart,
                 });
 
-                const stackId = (currentSeries as BarSeriesOption).stack;
-                const isStackedBar = stackId !== undefined;
+                let stackId: string | undefined;
+                let isStackedBar = false;
+
+                if (isBarSeriesOption(currentSeries)) {
+                  stackId = currentSeries.stack;
+                  isStackedBar = stackId !== undefined;
+                }
 
                 const { segLeft, segRight } = calculateBarSegmentBounds({
                   timestampCenterX,
@@ -513,7 +534,7 @@ export function gatherCandidates({
                 if (isWithinXBounds) {
                   let isHoveringYBounds = true;
 
-                  if (isStackedBar) {
+                  if (isStackedBar && stackId !== undefined) {
                     const visualY = calculateVisualYForSeries({ rawY: yValue, stackId, stackTotals });
                     const { lower, upper } = calculateBarYBounds({
                       visualY,
