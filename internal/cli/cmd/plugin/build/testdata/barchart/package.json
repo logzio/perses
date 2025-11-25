@@ -10,11 +10,7 @@
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
-<<<<<<< HEAD
-    "@module-federation/enhanced": "0.8.9"
-=======
     "@module-federation/enhanced": "^0.16.0"
->>>>>>> fed55a350e781e6fc6374df90a5465fc9e2c1b2a
   },
   "peerDependencies": {
     "@emotion/react": "11.7.1",
