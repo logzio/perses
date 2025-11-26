@@ -54,6 +54,7 @@ function getPanelBounds({ x, y, w, h }: PanelGroupItemLayout): PanelGroupItemBou
   };
 }
 
+// LOGZ.IO CHANGE START:: Use crypto.randomUUID if available, otherwise use a fallback method.
 export const randomUUID = (): ReturnType<typeof crypto.randomUUID> => {
   return crypto?.randomUUID
     ? crypto.randomUUID()
@@ -63,6 +64,7 @@ export const randomUUID = (): ReturnType<typeof crypto.randomUUID> => {
         return v.toString(16);
       }) as ReturnType<typeof crypto.randomUUID>);
 };
+// LOGZ.IO CHANGE END:: Use crypto.randomUUID if available, otherwise use a fallback method.
 
 export type UnpositionedPanelGroupItemLayout = Omit<PanelGroupItemLayout, 'x' | 'y'>;
 
