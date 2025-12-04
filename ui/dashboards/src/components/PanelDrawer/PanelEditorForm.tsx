@@ -11,7 +11,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { ReactElement, useCallback, useEffect, useRef, useState } from 'react';
+import { ReactElement, useCallback, useEffect, useState } from 'react';
 import { Box, Button, Grid, MenuItem, Stack, TextField, Typography } from '@mui/material';
 import { Action, PanelDefinition, PanelEditorValues } from '@perses-dev/core';
 import { DiscardChangesConfirmationDialog, ErrorAlert, ErrorBoundary } from '@perses-dev/components';
@@ -114,7 +114,6 @@ export function PanelEditorForm(props: PanelEditorFormProps): ReactElement {
   const watchedPluginKind = useWatch({ control: form.control, name: 'panelDefinition.spec.plugin.kind' });
 
   const handleSubmit = useCallback(() => {
-    pluginEditorRef.current?.flushChanges?.();
     form.handleSubmit(processForm)();
   }, [form, processForm]);
 
@@ -131,12 +130,7 @@ export function PanelEditorForm(props: PanelEditorFormProps): ReactElement {
         >
           <Typography variant="h2">{titleAction} Panel</Typography>
           <Stack direction="row" spacing={1} marginLeft="auto">
-            <Button
-              aria-label={`${submitText} panel`}
-              variant="contained"
-              disabled={!form.formState.isValid}
-              onClick={handleSubmit}
-            >
+            <Button variant="contained" disabled={!form.formState.isValid} onClick={handleSubmit}>
               {submitText}
             </Button>
             <Button color="secondary" variant="outlined" onClick={handleCancel}>

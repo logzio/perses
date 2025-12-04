@@ -84,16 +84,18 @@ export function GridItemContent(props: GridItemContentProps): ReactElement {
 
   const { data: plugin } = usePlugin('Panel', panelDefinition.spec.plugin.kind);
 
-  const definitions = useMemo(
-    () =>
-      queries.map((query) => {
-        return {
-          kind: query.spec.plugin.kind,
-          spec: query.spec.plugin.spec,
-        };
-      }),
-    [queries]
-  );
+  const queryDefinitions = queries ?? [];
+  const definitions = queryDefinitions.map((query) => {
+    return {
+      kind: query.spec.plugin.kind,
+      spec: query.spec.plugin.spec,
+    };
+  });
+
+  const pluginQueryOptions =
+    typeof plugin?.queryOptions === 'function'
+      ? plugin?.queryOptions(panelDefinition.spec.plugin.spec)
+      : plugin?.queryOptions;
 
   const pluginQueryOptions = useMemo(
     () =>
@@ -126,7 +128,11 @@ export function GridItemContent(props: GridItemContentProps): ReactElement {
           />
         )}
       </DataQueriesProvider>
-      <QueryViewerDialog open={openQueryViewer} queryDefinitions={queries} onClose={() => setOpenQueryViewer(false)} />
+      <QueryViewerDialog
+        open={openQueryViewer}
+        queryDefinitions={queryDefinitions}
+        onClose={() => setOpenQueryViewer(false)}
+      />
     </Box>
   );
 }

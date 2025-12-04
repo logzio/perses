@@ -13,8 +13,8 @@
 
 import { QueryDefinition, UnknownSpec, TraceData } from '@perses-dev/core';
 import { QueryKey, UseQueryResult } from '@tanstack/react-query';
-import { TraceQueryContext, TraceQueryPlugin } from '../model';
 import { useStableQueries } from '../hooks';
+import { TraceQueryContext, TraceQueryPlugin } from '../model';
 import { useDatasourceStore } from './datasources';
 import { usePluginRegistry, usePlugins } from './plugin-registry';
 import { useTimeRange } from './TimeRangeProvider';

@@ -149,6 +149,7 @@ describe('PluginEditor', () => {
       ['TimeSeriesQuery', 'TraceQuery', 'ProfileQuery'].forEach((type) => {
         it(`should render the run query button for ${type}`, () => {
           const onChangeHandler = jest.fn();
+          const onRunQueryHandler = jest.fn();
           renderWithContext(
             <PluginEditor
               pluginTypes={[type] as unknown as PluginEditorProps['pluginTypes']}
@@ -156,12 +157,14 @@ describe('PluginEditor', () => {
               withRunQueryButton
               value={{ selection: { type: type as PluginType, kind: '' }, spec: {} }}
               onChange={onChangeHandler}
+              onRunQuery={onRunQueryHandler}
             />
           );
           const queryButton = screen.getByTestId('run_query_button');
           expect(queryButton).toBeInTheDocument();
           userEvent.click(queryButton);
           expect(onChangeHandler).toHaveBeenCalledTimes(1);
+          expect(onRunQueryHandler).toHaveBeenCalledTimes(1);
         });
       });
     });

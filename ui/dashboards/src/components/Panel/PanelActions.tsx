@@ -158,7 +158,7 @@ export const PanelActions: React.FC<PanelActionsProps> = ({
   }, [queryResults]);
   // LOGZ.IO CHANGE END:: Performance optimization [APPZ-359]
 
-  const readActions = useMemo(() => {
+  const readActions = useMemo((): ReactNode | undefined => {
     if (readHandlers !== undefined) {
       return (
         <InfoTooltip description={TOOLTIP_TEXT.viewPanel}>

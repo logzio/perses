@@ -110,6 +110,22 @@ function ListVariableEditorForm({ action, control }: KindVariableEditorFormProps
    */
   const previewSpec = form.getValues() as ListVariableDefinition;
 
+  const values = form.getValues() as ListVariableDefinition;
+  /* We use `previewDefinition` to explicitly update the spec
+   * that will be used for preview when running query. The reason why we do this is to avoid
+   * having to re-fetch the values when the user is still editing the spec.
+   * Using structuredClone to not have reference issues with nested objects.
+   */
+  const [previewDefinition, setPreviewDefinition] = useState(structuredClone(values));
+
+  const handleRunQuery = useCallback(async () => {
+    if (JSON.stringify(previewDefinition) === JSON.stringify(values)) {
+      await queryClient.invalidateQueries({ queryKey: ['variable', previewDefinition] });
+    } else {
+      setPreviewDefinition(structuredClone(values));
+    }
+  }, [previewDefinition, queryClient, values]);
+
   const plugin = useWatch<VariableDefinition, 'spec.plugin'>({ control, name: 'spec.plugin' });
   const kind = plugin?.kind;
   const pluginSpec = plugin?.spec;
@@ -130,7 +146,6 @@ function ListVariableEditorForm({ action, control }: KindVariableEditorFormProps
 
   // When variable kind is selected we need to provide default values
   // TODO: check if react-hook-form has a better way to do this
-  const values = form.getValues() as ListVariableDefinition;
   if (values.spec.allowAllValue === undefined) {
     form.setValue('spec.allowAllValue', false);
   }
@@ -140,7 +155,7 @@ function ListVariableEditorForm({ action, control }: KindVariableEditorFormProps
   }
 
   if (!values.spec.plugin) {
-    form.setValue('spec.plugin', DEFAULT_LIST_VARIABLE_PLUGIN); // LOGZ.IO CHANGE:: Upgrade perses to latest [APPZ-1597]
+    form.setValue('spec.plugin', { kind: 'StaticListVariable', spec: {} });
   }
 
   if (!values.spec.sort) {
@@ -154,8 +169,8 @@ function ListVariableEditorForm({ action, control }: KindVariableEditorFormProps
       </Typography>
       <Stack spacing={2} mb={2}>
         <Box>
-          <ErrorBoundary FallbackComponent={FallbackPreview} resetKeys={[previewSpec]}>
-            <VariableListPreview sortMethod={sortMethod} definition={previewSpec} />
+          <ErrorBoundary FallbackComponent={FallbackPreview} resetKeys={[previewDefinition]}>
+            <VariableListPreview sortMethod={sortMethod} definition={previewDefinition} />
           </ErrorBoundary>
         </Box>
         <Stack>
@@ -167,21 +182,23 @@ function ListVariableEditorForm({ action, control }: KindVariableEditorFormProps
                 return (
                   <PluginEditor
                     withRunQueryButton={false}
+                    withRunQueryButton
                     width="100%"
                     pluginTypes={['Variable']}
                     pluginKindLabel="Source"
                     value={{
                       selection: {
                         type: 'Variable',
-                        kind: kind ?? DEFAULT_LIST_VARIABLE_PLUGIN.kind, // LOGZ.IO CHANGE:: Upgrade perses to latest [APPZ-1597]
+                        kind: kind ?? 'StaticListVariable',
                       },
-                      spec: pluginSpec ?? DEFAULT_LIST_VARIABLE_PLUGIN.spec, // LOGZ.IO CHANGE:: Upgrade perses to latest [APPZ-1597]
+                      spec: pluginSpec ?? {},
                     }}
                     isReadonly={action === 'read'}
                     onChange={(v) => {
                       field.onChange({ kind: v.selection.kind, spec: v.spec });
                     }}
                     onQueryRefresh={handleRefresh}
+                    onRunQuery={handleRunQuery}
                   />
                 );
               }}

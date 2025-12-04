@@ -33,6 +33,7 @@ interface QueryEditorContainerProps {
   queryResult?: QueryData;
   filteredQueryPlugins?: string[];
   onChange: (index: number, query: QueryDefinition) => void;
+  onQueryRun: (index: number, query: QueryDefinition) => void;
   onCollapseExpand: (index: number) => void;
   isCollapsed?: boolean;
   onDelete?: (index: number) => void;
@@ -62,6 +63,7 @@ export const QueryEditorContainer = forwardRef<PluginEditorRef, QueryEditorConta
       isCollapsed,
       onDelete,
       onChange,
+      onQueryRun,
       onCollapseExpand,
     } = props;
     return (
@@ -130,6 +132,7 @@ export const QueryEditorContainer = forwardRef<PluginEditorRef, QueryEditorConta
             queryResult={queryResult}
             filteredQueryPlugins={filteredQueryPlugins}
             onChange={(next) => onChange(index, next)}
+            onQueryRun={() => onQueryRun(index, query)}
           />
         )}
       </Stack>
@@ -148,6 +151,7 @@ interface QueryEditorProps extends Omit<BoxProps, OmittedMuiProps> {
   queryResult?: QueryData;
   filteredQueryPlugins?: string[];
   onChange: (next: QueryDefinition) => void;
+  onQueryRun: () => void;
 }
 
 /**
@@ -157,6 +161,9 @@ interface QueryEditorProps extends Omit<BoxProps, OmittedMuiProps> {
  * @param props
  * @constructor
  */
+
+const QueryEditor = forwardRef<PluginEditorRef, QueryEditorProps>((props, ref): ReactElement => {
+  const { queryTypes, value, filteredQueryPlugins, onChange, onQueryRun, ...others } = props;
 
 const QueryEditor = forwardRef<PluginEditorRef, QueryEditorProps>((props, ref): ReactElement => {
   const { value, onChange, queryTypes, queryResult, filteredQueryPlugins, ...others } = props;
@@ -185,7 +192,9 @@ const QueryEditor = forwardRef<PluginEditorRef, QueryEditorProps>((props, ref): 
           spec: value.spec.plugin.spec,
         }}
         filteredQueryPlugins={filteredQueryPlugins}
+        withRunQueryButton
         onQueryRefresh={queryResult?.refetch}
+        onRunQuery={onQueryRun}
         onChange={handlePluginChange}
       />
     </Box>
