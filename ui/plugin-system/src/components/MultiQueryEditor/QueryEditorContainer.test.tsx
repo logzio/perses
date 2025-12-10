@@ -70,6 +70,7 @@ describe('QueryEditorContainer', () => {
           onDelete={jest.fn()}
           onChange={jest.fn()}
           onCollapseExpand={jest.fn()}
+          onQueryRun={jest.fn()}
         />
       );
       const runQuerybutton = screen.queryByTestId('run_query_button');

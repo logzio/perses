@@ -96,10 +96,9 @@ export function DataQueriesProvider(props: DataQueriesProviderProps): ReactEleme
   );
   const timeSeriesResults = useTimeSeriesQueries(timeSeriesQueries, options, queryOptions);
 
-  const traceQueries = useMemo(
-    () => queryDefinitions.filter((definition) => definition.kind === 'TraceQuery') as TraceQueryDefinition[],
-    [queryDefinitions]
-  );
+  const traceQueries = queryDefinitions.filter(
+    (definition) => definition.kind === 'TraceQuery'
+  ) as TraceQueryDefinition[];
   const traceResults = useTraceQueries(traceQueries);
 
   const profileQueries = queryDefinitions.filter(

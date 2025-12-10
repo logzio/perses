@@ -43,7 +43,13 @@ export interface TraceData {
   trace?: TracesData;
   searchResult?: TraceSearchResult[];
 
-  metadata?: BaseMetadata;
+  metadata?: TraceMetaData;
+}
+
+export interface TraceMetaData extends BaseMetadata {
+  /** this field indicates if there are more traces matching the search query, however not all traces were returned */
+  hasMoreResults?: boolean;
+  [key: string]: unknown;
 }
 
 export function isValidTraceId(traceId: string): boolean {
