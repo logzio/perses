@@ -23,6 +23,12 @@ import { InfoTooltip } from '@perses-dev/components';
 import { QueryData } from '../../runtime';
 import { PluginEditor, PluginEditorProps, PluginEditorRef } from '../PluginEditor';
 
+// LOGZ.IO CHANGE:: START [APPZ-1277]
+export const numberToUppercaseLetter = (number: number): string => {
+  return number < 0 || number > 25 ? `${number}` : String.fromCharCode(number + 65);
+};
+// LOGZ.IO CHANGE:: END
+
 /**
  * Properties for {@link QueryEditorContainer}
  */
@@ -78,7 +84,7 @@ export const QueryEditorContainer = forwardRef<PluginEditorRef, QueryEditorConta
               {isCollapsed ? <ChevronRight /> : <ChevronDown />}
             </IconButton>
             <Typography variant="overline" component="h4">
-              Query #{index + 1}
+              {numberToUppercaseLetter(index) /* LOGZ.IO CHANGE:: [APPZ-1277] */}
             </Typography>
           </Stack>
           <Stack direction="row" alignItems="center">
