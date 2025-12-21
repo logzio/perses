@@ -37,17 +37,33 @@ type VariableProps = {
   name: VariableName;
   source?: string;
 };
+
 //LOGZ.IO CHANGE START:: Variable input width calculation [APPZ-1764]
-const measurementCanvas = document.createElement('canvas');
-const measurementContext = measurementCanvas.getContext('2d');
+let measurementCanvas: HTMLCanvasElement | null = null;
+let measurementContext: CanvasRenderingContext2D | null = null;
+
+function getMeasurementContext(): CanvasRenderingContext2D | null {
+  if (typeof document === 'undefined') {
+    return null;
+  }
+
+  if (!measurementCanvas) {
+    measurementCanvas = document.createElement('canvas');
+    measurementContext = measurementCanvas.getContext('2d');
+  }
+
+  return measurementContext;
+}
 
 function getTextWidth(text: string, font: string): number {
-  if (!measurementContext) {
+  const context = getMeasurementContext();
+
+  if (!context) {
     return text.length * 8;
   }
 
-  measurementContext.font = font;
-  const metrics = measurementContext.measureText(text);
+  context.font = font;
+  const metrics = context.measureText(text);
   return Math.ceil(metrics.width);
 }
 //LOGZ.IO CHANGE END:: Variable input width calculation [APPZ-1764]
