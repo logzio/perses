@@ -94,12 +94,6 @@ export interface DashboardProviderProps {
 
 export function DashboardProvider({ dashboardStoreApiRef, ...props }: DashboardProviderProps): ReactElement {
   const createDashboardStore = useCallback(initStore, [props]);
-
-  // load plugin to retrieve initial spec if default panel kind is defined
-  const { defaultPluginKinds } = usePluginRegistry();
-  const defaultPanelKind = defaultPluginKinds?.['Panel'] ?? '';
-  const { data: plugin } = usePlugin('Panel', defaultPanelKind);
-
   // LOGZ.IO CHANGE START:: Add support for dashboardStoreApiRef
   const [store] = useState(() => {
     const newStore = createDashboardStore(props);
@@ -109,6 +103,11 @@ export function DashboardProvider({ dashboardStoreApiRef, ...props }: DashboardP
     return newStore;
   }); // prevent calling createDashboardStore every time it rerenders
   // LOGZ.IO CHANGE END:: Add support for dashboardStoreApiRef
+
+  // load plugin to retrieve initial spec if default panel kind is defined
+  const { defaultPluginKinds } = usePluginRegistry();
+  const defaultPanelKind = defaultPluginKinds?.['Panel'] ?? '';
+  const { data: plugin } = usePlugin('Panel', defaultPanelKind);
 
   useEffect(() => {
     if (plugin === undefined) return;

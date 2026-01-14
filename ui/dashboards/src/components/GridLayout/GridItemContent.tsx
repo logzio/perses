@@ -94,6 +94,7 @@ export function GridItemContent(props: GridItemContentProps): ReactElement {
       }),
     [queries]
   );
+  const queryDefinitions = queries ?? [];
 
   const pluginQueryOptions = useMemo(
     () =>
@@ -126,7 +127,11 @@ export function GridItemContent(props: GridItemContentProps): ReactElement {
           />
         )}
       </DataQueriesProvider>
-      <QueryViewerDialog open={openQueryViewer} queryDefinitions={queries} onClose={() => setOpenQueryViewer(false)} />
+      <QueryViewerDialog
+        open={openQueryViewer}
+        queryDefinitions={queryDefinitions}
+        onClose={() => setOpenQueryViewer(false)}
+      />
     </Box>
   );
 }

@@ -55,10 +55,10 @@ export function ChartsProvider(props: ChartsProviderProps): ReactElement {
   }, [
     chartsTheme,
     enablePinning,
+    enableSyncGrouping,
     lastTooltipPinnedCoords,
     setLastTooltipPinnedCoords,
     pointActions, // LOGZ.IO CHANGE:: Drilldown panel [APPZ-377]
-    enableSyncGrouping, // LOGZ.IO CHANGE:: Shared tooltip in edit panel bug-fix [APPZ-498]
   ]);
 
   return <ChartsThemeContext.Provider value={ctx}>{children}</ChartsThemeContext.Provider>;

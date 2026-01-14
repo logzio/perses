@@ -152,7 +152,6 @@ export function ViewDashboard(props: ViewDashboardProps): ReactElement {
                   isVariableEnabled={isVariableEnabled}
                   isDatasourceEnabled={isDatasourceEnabled}
                   isCreating={isCreating}
-                  dashboardControlsComponent={dashboardControlsComponent}
                   isInitialVariableSticky={isInitialVariableSticky}
                   isLeavingConfirmDialogEnabled={isLeavingConfirmDialogEnabled}
                   dashboardTitleComponent={dashboardTitleComponent}

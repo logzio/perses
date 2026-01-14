@@ -360,6 +360,16 @@ export interface TableColumnConfig<TableData>
    * Use URL templates with placeholders to create dynamic links based on cell data.
    */
   linkConfig?: LinkConfig;
+
+  /**
+   * Dynamic link setting. If available the the cell content should turn into
+   * a link with the value of the cell as the dynamic section
+   */
+  dataLink?: {
+    url: string;
+    title?: string;
+    openNewTab: boolean;
+  };
 }
 
 /**
