@@ -91,6 +91,52 @@ export function areDependenciesResolved(
   return externalDeps.every((depIdx) => resolvedResults.has(depIdx));
 }
 
+interface CircularDependencyState {
+  visited: Set<number>;
+  recursionStack: Set<number>;
+}
+
+function detectCircularDependencyInternal(
+  currentQueryIndex: number,
+  dependencies: Map<number, number[]>,
+  state: CircularDependencyState
+): { hasCycle: boolean; cyclePath: number[] } {
+  state.visited.add(currentQueryIndex);
+  state.recursionStack.add(currentQueryIndex);
+
+  const deps = dependencies.get(currentQueryIndex) ?? [];
+  const externalDeps = deps.filter((depIdx) => depIdx !== currentQueryIndex);
+
+  for (const depIndex of externalDeps) {
+    if (!state.visited.has(depIndex)) {
+      const result = detectCircularDependencyInternal(depIndex, dependencies, state);
+      if (result.hasCycle) {
+        return { hasCycle: true, cyclePath: [currentQueryIndex, ...result.cyclePath] };
+      }
+    } else if (state.recursionStack.has(depIndex)) {
+      return { hasCycle: true, cyclePath: [currentQueryIndex, depIndex] };
+    }
+  }
+
+  state.recursionStack.delete(currentQueryIndex);
+  return { hasCycle: false, cyclePath: [] };
+}
+
+export function detectCircularDependency(
+  queryIndex: number,
+  dependencies: Map<number, number[]>
+): { hasCycle: boolean; cyclePath: number[] } {
+  const state: CircularDependencyState = {
+    visited: new Set(),
+    recursionStack: new Set(),
+  };
+  return detectCircularDependencyInternal(queryIndex, dependencies, state);
+}
+
+export function formatCyclePath(cyclePath: number[]): string {
+  return cyclePath.map((idx) => `Query #${idx + 1}`).join(' -> ');
+}
+
 export function buildResolvedResults(results: Array<UseQueryResult<TimeSeriesData>>): Map<number, TimeSeriesData> {
   const map = new Map<number, TimeSeriesData>();
   results.forEach((result, idx) => {
@@ -154,7 +200,11 @@ export function createQueryConfig({
 
   const deps = dependencies.get(queryIndex) ?? [];
   const hasDeps = deps.length > 0;
-  const depsResolved = areDependenciesResolved(queryIndex, dependencies, resolvedResults);
+
+  const circularCheck = hasDeps ? detectCircularDependency(queryIndex, dependencies) : { hasCycle: false, cyclePath: [] };
+  const hasCircularDependency = circularCheck.hasCycle;
+
+  const depsResolved = hasCircularDependency || areDependenciesResolved(queryIndex, dependencies, resolvedResults);
   const depsFingerprint = hasDeps ? getDependencyFingerprint(resolvedResults, dependencies, queryIndex) : '';
 
   const finalQueryKey = hasDeps ? [...queryKey, queryIndex, 'deps', depsFingerprint] : [...queryKey, queryIndex];
@@ -164,6 +214,11 @@ export function createQueryConfig({
     enabled: (queryOptions?.enabled ?? true) && queryEnabled && depsResolved,
     queryKey: finalQueryKey,
     queryFn: async ({ signal }: { signal: AbortSignal }): Promise<TimeSeriesData> => {
+      if (hasCircularDependency) {
+        const cyclePath = formatCyclePath(circularCheck.cyclePath);
+        throw new Error(`Circular dependency detected: ${cyclePath}. Queries cannot depend on each other in a cycle.`);
+      }
+
       const loadedPlugin = await getPlugin(TIME_SERIES_QUERY_KEY, definition.spec.plugin.kind);
       const ctx: TimeSeriesQueryContext = {
         ...context,
