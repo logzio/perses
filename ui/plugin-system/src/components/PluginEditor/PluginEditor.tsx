@@ -13,12 +13,14 @@
 
 import { Box, Button } from '@mui/material';
 import Reload from 'mdi-material-ui/Reload';
+import Play from 'mdi-material-ui/Play';
 import { ErrorAlert, ErrorBoundary } from '@perses-dev/components';
 import { forwardRef, ReactElement, useCallback, useImperativeHandle, useMemo, useState } from 'react';
 import { UnknownSpec } from '@perses-dev/core';
 import { PluginKindSelect } from '../PluginKindSelect';
 import { PluginSpecEditor } from '../PluginSpecEditor';
 import { PluginEditorProps, PluginEditorRef, usePluginEditor } from './plugin-editor-api';
+import isEqual from 'lodash/isEqual';
 
 /**
  * A combination `PluginKindSelect` and `PluginSpecEditor` component. This is meant for editing the `plugin` property
@@ -39,6 +41,7 @@ export const PluginEditor = forwardRef<PluginEditorRef, PluginEditorProps>((prop
     isReadonly,
     onQueryRefresh,
     filteredQueryPlugins,
+    index, // LOGZ.IO CHANGE:: APPZ-955-math-on-queries-formulas
     ...others
   } = props;
   const { pendingSelection, isLoading, error, onSelectionChange, onSpecChange } = usePluginEditor(props);
@@ -52,6 +55,9 @@ export const PluginEditor = forwardRef<PluginEditorRef, PluginEditorProps>((prop
   const [watchedQuery, setWatchQuery] = useState<string>(value.spec['query'] as string);
   const [watchedOtherSpecs, setWatchOtherSpecs] = useState<UnknownSpec>(value.spec);
 
+  const isSynced = watchedQuery === value.spec['query'] && isEqual(watchedOtherSpecs, value.spec); // // LOGZ.IO CHANGE:: APPZ-955-math-on-queries-formulas
+
+
   const runQueryHandler = useCallback((): void => {
     onSpecChange({ ...value.spec, ...watchedOtherSpecs, query: watchedQuery });
     onQueryRefresh?.();
@@ -60,14 +66,14 @@ export const PluginEditor = forwardRef<PluginEditorRef, PluginEditorProps>((prop
   const queryHandlerSettings = useMemo(() => {
     return withRunQueryButton
       ? {
-          runWithOnBlur: false,
-          watchQueryChanges: (query: string): void => {
-            setWatchQuery(query);
-          },
-          setWatchOtherSpecs: (otherSpecs: UnknownSpec): void => {
-            setWatchOtherSpecs(otherSpecs);
-          },
-        }
+        runWithOnBlur: false,
+        watchQueryChanges: (query: string): void => {
+          setWatchQuery(query);
+        },
+        setWatchOtherSpecs: (otherSpecs: UnknownSpec): void => {
+          setWatchOtherSpecs(otherSpecs);
+        },
+      }
       : undefined;
   }, [withRunQueryButton]);
 
@@ -101,8 +107,8 @@ export const PluginEditor = forwardRef<PluginEditorRef, PluginEditorProps>((prop
         />
 
         {withRunQueryButton && !isLoading && (
-          <Button data-testid="run_query_button" variant="contained" startIcon={<Reload />} onClick={runQueryHandler}>
-            Run Query
+          <Button data-testid="run_query_button" variant={isSynced ? "outlined" : "contained"} startIcon={isSynced ? <Reload /> : <Play />} onClick={runQueryHandler} >
+            {isSynced ? `Reload Query` : `Run Query`}
           </Button>
         )}
       </Box>
@@ -114,6 +120,7 @@ export const PluginEditor = forwardRef<PluginEditorRef, PluginEditorProps>((prop
           onChange={onSpecChange}
           isReadonly={isReadonly}
           queryHandlerSettings={queryHandlerSettings}
+          index={index} // LOGZ.IO CHANGE:: APPZ-955-math-on-queries-formulas
         />
       </ErrorBoundary>
     </Box>
