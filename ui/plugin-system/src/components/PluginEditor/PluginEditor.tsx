@@ -17,10 +17,10 @@ import Play from 'mdi-material-ui/Play';
 import { ErrorAlert, ErrorBoundary } from '@perses-dev/components';
 import { forwardRef, ReactElement, useCallback, useImperativeHandle, useMemo, useState } from 'react';
 import { UnknownSpec } from '@perses-dev/core';
+import isEqual from 'lodash/isEqual';
 import { PluginKindSelect } from '../PluginKindSelect';
 import { PluginSpecEditor } from '../PluginSpecEditor';
 import { PluginEditorProps, PluginEditorRef, usePluginEditor } from './plugin-editor-api';
-import isEqual from 'lodash/isEqual';
 
 /**
  * A combination `PluginKindSelect` and `PluginSpecEditor` component. This is meant for editing the `plugin` property
@@ -57,7 +57,6 @@ export const PluginEditor = forwardRef<PluginEditorRef, PluginEditorProps>((prop
 
   const isSynced = watchedQuery === value.spec['query'] && isEqual(watchedOtherSpecs, value.spec); // // LOGZ.IO CHANGE:: APPZ-955-math-on-queries-formulas
 
-
   const runQueryHandler = useCallback((): void => {
     onSpecChange({ ...value.spec, ...watchedOtherSpecs, query: watchedQuery });
     onQueryRefresh?.();
@@ -66,14 +65,14 @@ export const PluginEditor = forwardRef<PluginEditorRef, PluginEditorProps>((prop
   const queryHandlerSettings = useMemo(() => {
     return withRunQueryButton
       ? {
-        runWithOnBlur: false,
-        watchQueryChanges: (query: string): void => {
-          setWatchQuery(query);
-        },
-        setWatchOtherSpecs: (otherSpecs: UnknownSpec): void => {
-          setWatchOtherSpecs(otherSpecs);
-        },
-      }
+          runWithOnBlur: false,
+          watchQueryChanges: (query: string): void => {
+            setWatchQuery(query);
+          },
+          setWatchOtherSpecs: (otherSpecs: UnknownSpec): void => {
+            setWatchOtherSpecs(otherSpecs);
+          },
+        }
       : undefined;
   }, [withRunQueryButton]);
 
@@ -107,7 +106,12 @@ export const PluginEditor = forwardRef<PluginEditorRef, PluginEditorProps>((prop
         />
 
         {withRunQueryButton && !isLoading && (
-          <Button data-testid="run_query_button" variant={isSynced ? "outlined" : "contained"} startIcon={isSynced ? <Reload /> : <Play />} onClick={runQueryHandler} >
+          <Button
+            data-testid="run_query_button"
+            variant={isSynced ? 'outlined' : 'contained'}
+            startIcon={isSynced ? <Reload /> : <Play />}
+            onClick={runQueryHandler}
+          >
             {isSynced ? `Reload Query` : `Run Query`}
           </Button>
         )}

@@ -19,7 +19,7 @@ import ChevronDown from 'mdi-material-ui/ChevronDown';
 import ChevronRight from 'mdi-material-ui/ChevronRight';
 import EyeIcon from 'mdi-material-ui/Eye';
 import EyeOffIcon from 'mdi-material-ui/EyeOff';
-import { forwardRef, ReactElement, useCallback } from 'react';
+import { forwardRef, ReactElement } from 'react';
 import AlertIcon from 'mdi-material-ui/Alert';
 import { InfoTooltip } from '@perses-dev/components';
 import { QueryData } from '../../runtime';
@@ -81,15 +81,19 @@ export const QueryEditorContainer = forwardRef<PluginEditorRef, QueryEditorConta
           borderBottom={1}
           borderColor={(theme) => theme.palette.divider}
         >
-          <Stack direction="row" >
+          <Stack direction="row">
             <IconButton size="small" onClick={() => onCollapseExpand(index)}>
               {isCollapsed ? <ChevronRight /> : <ChevronDown />}
             </IconButton>
-            <Stack gap={0.5} direction={'row'} alignItems={'center'}>
+            <Stack gap={0.5} direction="row" alignItems="center">
               <Typography variant="overline" component="h4">
                 Query #{index + 1}
               </Typography>
-              {query.spec.hidden && <Typography variant='caption' color='secondary' component={'span'} fontStyle={'italic'}>Disabled</Typography>}
+              {query.spec.hidden && (
+                <Typography variant="caption" color="secondary" component="span" fontStyle="italic">
+                  Disabled
+                </Typography>
+              )}
             </Stack>
           </Stack>
           <Stack direction="row" alignItems="center">

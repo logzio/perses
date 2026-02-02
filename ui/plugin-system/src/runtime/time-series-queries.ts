@@ -12,10 +12,17 @@
 // limitations under the License.
 
 import { TimeSeriesData, TimeSeriesQueryDefinition, UnknownSpec } from '@perses-dev/core';
-import { Query, QueryCache, QueryKey, QueryObserverOptions, useQuery, useQueryClient, UseQueryResult } from '@tanstack/react-query';
-import { TimeSeriesDataQuery } from '../model';
+import {
+  Query,
+  QueryCache,
+  QueryKey,
+  QueryObserverOptions,
+  useQuery,
+  useQueryClient,
+  UseQueryResult,
+} from '@tanstack/react-query';
 import { useMemo, useState, useEffect } from 'react';
-import { TimeSeriesQueryContext, TimeSeriesQueryMode } from '../model';
+import { TimeSeriesDataQuery, TimeSeriesQueryContext, TimeSeriesQueryMode } from '../model';
 import { useStableQueries } from '../hooks';
 import { useTimeRange } from './TimeRangeProvider';
 import { useDatasourceStore } from './datasources';
@@ -101,16 +108,18 @@ export function useTimeSeriesQueries(
   );
 
   const queries = useMemo(() => {
-    return definitions.map((definition, idx) => createQueryConfig({
-      definition,
-      plugin: pluginLoaderResponse[idx]?.data,
-      context,
-      queryIndex: idx,
-      getPlugin,
-      queryOptions,
-      resolvedResults,
-      dependencies,
-    }));
+    return definitions.map((definition, idx) =>
+      createQueryConfig({
+        definition,
+        plugin: pluginLoaderResponse[idx]?.data,
+        context,
+        queryIndex: idx,
+        getPlugin,
+        queryOptions,
+        resolvedResults,
+        dependencies,
+      })
+    );
   }, [definitions, pluginLoaderResponse, context, dependencies, getPlugin, queryOptions, resolvedResults]);
 
   // LOGZ.IO CHANGE:: Performance optimization [APPZ-359] useStableQueries()

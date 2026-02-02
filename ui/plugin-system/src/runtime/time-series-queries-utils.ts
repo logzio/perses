@@ -15,11 +15,7 @@
 
 import { TimeSeriesData, TimeSeriesQueryDefinition } from '@perses-dev/core';
 import { QueryKey, QueryObserverOptions, UseQueryResult } from '@tanstack/react-query';
-import {
-  TimeSeriesQueryContext,
-  TimeSeriesQueryPlugin,
-  TimeSeriesQueryPluginDependencies,
-} from '../model';
+import { TimeSeriesQueryContext, TimeSeriesQueryPlugin, TimeSeriesQueryPluginDependencies } from '../model';
 import { usePluginRegistry } from './plugin-registry';
 import { filterVariableStateMap, getVariableValuesKey } from './utils';
 
@@ -95,9 +91,7 @@ export function areDependenciesResolved(
   return externalDeps.every((depIdx) => resolvedResults.has(depIdx));
 }
 
-export function buildResolvedResults(
-  results: Array<UseQueryResult<TimeSeriesData>>
-): Map<number, TimeSeriesData> {
+export function buildResolvedResults(results: Array<UseQueryResult<TimeSeriesData>>): Map<number, TimeSeriesData> {
   const map = new Map<number, TimeSeriesData>();
   results.forEach((result, idx) => {
     if (result?.data) {
@@ -121,16 +115,18 @@ export function getDependencyFingerprint(
   const deps = dependencies.get(queryIndex) ?? [];
   if (deps.length === 0) return '';
 
-  return deps.map((depIdx) => {
-    const data = resolvedResults.get(depIdx);
-    if (!data) return `${depIdx}:null`;
+  return deps
+    .map((depIdx) => {
+      const data = resolvedResults.get(depIdx);
+      if (!data) return `${depIdx}:null`;
 
-    const seriesCount = data.series?.length ?? 0;
-    const firstTs = data.series?.[0]?.values?.[0]?.[0] ?? 0;
-    const lastTs = data.series?.[0]?.values?.slice(-1)?.[0]?.[0] ?? 0;
+      const seriesCount = data.series?.length ?? 0;
+      const firstTs = data.series?.[0]?.values?.[0]?.[0] ?? 0;
+      const lastTs = data.series?.[0]?.values?.slice(-1)?.[0]?.[0] ?? 0;
 
-    return `${depIdx}:${seriesCount}:${firstTs}:${lastTs}`;
-  }).join('|');
+      return `${depIdx}:${seriesCount}:${firstTs}:${lastTs}`;
+    })
+    .join('|');
 }
 
 export interface CreateQueryConfigParams {
@@ -161,9 +157,7 @@ export function createQueryConfig({
   const depsResolved = areDependenciesResolved(queryIndex, dependencies, resolvedResults);
   const depsFingerprint = hasDeps ? getDependencyFingerprint(resolvedResults, dependencies, queryIndex) : '';
 
-  const finalQueryKey = hasDeps
-    ? [...queryKey, queryIndex, 'deps', depsFingerprint]
-    : [...queryKey, queryIndex];
+  const finalQueryKey = hasDeps ? [...queryKey, queryIndex, 'deps', depsFingerprint] : [...queryKey, queryIndex];
 
   return {
     ...queryOptions,

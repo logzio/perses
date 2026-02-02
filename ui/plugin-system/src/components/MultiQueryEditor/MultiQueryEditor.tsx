@@ -126,21 +126,21 @@ export const MultiQueryEditor = forwardRef<PluginEditorRef, MultiQueryEditorProp
     });
   };
 
-
   // LOGZ.IO CHANGE START:: APPZ-955-math-on-queries-formulas
-  const handleVisibilityToggle = useCallback((index: number, isHidden: boolean) => {
-    onChange(
-      produce(queries, (draft) => {
-        const entry = draft?.[index];
-        if (entry) {
-          entry.spec.hidden = !isHidden;
-        }
-      })
-    );
-  }, [onChange, queries]);
+  const handleVisibilityToggle = useCallback(
+    (index: number, isHidden: boolean) => {
+      onChange(
+        produce(queries, (draft) => {
+          const entry = draft?.[index];
+          if (entry) {
+            entry.spec.hidden = !isHidden;
+          }
+        })
+      );
+    },
+    [onChange, queries]
+  );
   // LOGZ.IO CHANGE END:: APPZ-955-math-on-queries-formulas
-
-
 
   const handleQueryCollapseExpand = (index: number): void => {
     setQueriesCollapsed((queriesCollapsed) => {
