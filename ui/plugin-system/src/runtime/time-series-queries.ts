@@ -59,7 +59,7 @@ export function useTimeSeriesQuery(
   const { queryEnabled, queryKey } = getQueryOptions(plugin, definition, context);
 
   return useQuery({
-    enabled: (queryOptions?.enabled ?? true) || queryEnabled,
+    enabled: (queryOptions?.enabled ?? true) && queryEnabled,
     queryKey: queryKey,
     queryFn: ({ signal }) => {
       if (plugin === undefined) {
