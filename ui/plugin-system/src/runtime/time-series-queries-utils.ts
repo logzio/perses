@@ -159,9 +159,11 @@ export function getDependencyFingerprint(
   queryIndex: number
 ): string {
   const deps = dependencies.get(queryIndex) ?? [];
-  if (deps.length === 0) return '';
+  const externalDeps = deps.filter((depIdx) => depIdx !== queryIndex);
 
-  return deps
+  if (externalDeps.length === 0) return '';
+
+  return externalDeps
     .map((depIdx) => {
       const data = resolvedResults.get(depIdx);
       if (!data) return `${depIdx}:null`;
@@ -201,7 +203,9 @@ export function createQueryConfig({
   const deps = dependencies.get(queryIndex) ?? [];
   const hasDeps = deps.length > 0;
 
-  const circularCheck = hasDeps ? detectCircularDependency(queryIndex, dependencies) : { hasCycle: false, cyclePath: [] };
+  const circularCheck = hasDeps
+    ? detectCircularDependency(queryIndex, dependencies)
+    : { hasCycle: false, cyclePath: [] };
   const hasCircularDependency = circularCheck.hasCycle;
 
   const depsResolved = hasCircularDependency || areDependenciesResolved(queryIndex, dependencies, resolvedResults);

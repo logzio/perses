@@ -15,7 +15,7 @@ import { Box, Button } from '@mui/material';
 import Reload from 'mdi-material-ui/Reload';
 import Play from 'mdi-material-ui/Play';
 import { ErrorAlert, ErrorBoundary } from '@perses-dev/components';
-import { forwardRef, ReactElement, useCallback, useImperativeHandle, useMemo, useState } from 'react';
+import { forwardRef, ReactElement, useCallback, useEffect, useImperativeHandle, useMemo, useState } from 'react';
 import { UnknownSpec } from '@perses-dev/core';
 import isEqual from 'lodash/isEqual';
 import { PluginKindSelect } from '../PluginKindSelect';
@@ -52,8 +52,16 @@ export const PluginEditor = forwardRef<PluginEditorRef, PluginEditorProps>((prop
      Reason: Only Query string field is common between all of them. Other specs may be different
      Example: Legend, and MinSteps
     */
-  const [watchedQuery, setWatchQuery] = useState<string>(value.spec['query'] as string);
+  const [watchedQuery, setWatchQuery] = useState<string>(value.spec.query as string);
   const [watchedOtherSpecs, setWatchOtherSpecs] = useState<UnknownSpec>(value.spec);
+
+  useEffect(() => {
+    setWatchQuery(value.spec.query as string);
+  }, [value.spec.query]);
+
+  useEffect(() => {
+    setWatchOtherSpecs(value.spec);
+  }, [value.spec]);
 
   const isSynced = watchedQuery === value.spec['query'] && isEqual(watchedOtherSpecs, value.spec); // // LOGZ.IO CHANGE:: APPZ-955-math-on-queries-formulas
 
