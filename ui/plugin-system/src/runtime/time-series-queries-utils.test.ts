@@ -1,11 +1,7 @@
 // LOGZ.IO FILE:: APPZ-955-math-on-queries-formulas
 
 import { TimeSeriesData } from '@perses-dev/core';
-import {
-  areDependenciesResolved,
-  detectCircularDependency,
-  formatCyclePath,
-} from './time-series-queries-utils';
+import { areDependenciesResolved, detectCircularDependency, formatCyclePath } from './time-series-queries-utils';
 
 describe('areDependenciesResolved', () => {
   test('returns true when query has no dependencies', () => {
