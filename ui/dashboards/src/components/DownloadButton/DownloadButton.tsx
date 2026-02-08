@@ -12,9 +12,10 @@
 // limitations under the License.
 
 import { ClickAwayListener, Menu, MenuItem, MenuList } from '@mui/material';
-import { ToolbarIconButton } from '@perses-dev/components';
+import { InfoTooltip, ToolbarIconButton } from '@perses-dev/components';
 import DownloadIcon from 'mdi-material-ui/DownloadOutline';
 import React, { ReactElement, useRef } from 'react';
+import { TOOLTIP_TEXT } from '../../constants';
 import { useDashboard } from '../../context';
 import { serializeDashboard } from './serializeDashboard';
 
@@ -45,16 +46,17 @@ export function DownloadButton(): ReactElement {
 
   return (
     <>
-      <ToolbarIconButton
-        id="download-dashboard-button"
-        aria-controls={open ? 'basic-menu' : undefined}
-        aria-haspopup="true"
-        aria-expanded={open ? 'true' : undefined}
-        onClick={handleClick}
-      >
-        <DownloadIcon />
-      </ToolbarIconButton>
-
+      <InfoTooltip description={TOOLTIP_TEXT.download}>
+        <ToolbarIconButton
+          id="download-dashboard-button"
+          aria-controls={open ? 'basic-menu' : undefined}
+          aria-haspopup="true"
+          aria-expanded={open ? 'true' : undefined}
+          onClick={handleClick}
+        >
+          <DownloadIcon />
+        </ToolbarIconButton>
+      </InfoTooltip>
       <Menu
         id="download-dashboard-formats"
         anchorEl={anchorEl}
