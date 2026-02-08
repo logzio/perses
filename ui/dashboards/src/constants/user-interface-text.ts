@@ -18,6 +18,7 @@ export const TOOLTIP_TEXT = {
   editDatasources: 'Edit datasources',
   editJson: 'Edit JSON',
   editVariables: 'Edit variables',
+  download: 'Download',
   viewJson: 'View JSON',
   // Group buttons
   addPanelToGroup: 'Add panel to group',
