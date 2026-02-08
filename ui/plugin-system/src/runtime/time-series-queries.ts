@@ -127,6 +127,7 @@ export function useTimeSeriesQueries(
 
   // Memoize resolved results computation to avoid rebuilding in every effect run
   const newResolved = useMemo(() => buildResolvedResults(results), [results]);
+  const hasPendingDependentQueries = definitions.length !== resolvedResults.size;
 
   // Sync resolved results when data references change
   useEffect(() => {
@@ -135,7 +136,10 @@ export function useTimeSeriesQueries(
     }
   }, [newResolved, resolvedResults]);
 
-  return results;
+  return results.map((result) => ({
+    ...result,
+    isFetching: result.isFetching || hasPendingDependentQueries,
+  }));
   // LOGZ.IO CHANGE END:: APPZ-955-math-on-queries-formulas
 }
 
