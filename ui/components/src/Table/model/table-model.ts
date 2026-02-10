@@ -13,6 +13,7 @@
 
 import { Theme } from '@mui/material';
 import {
+  AccessorFn,
   CellContext,
   ColumnDef,
   CoreOptions,
@@ -20,8 +21,6 @@ import {
   RowData,
   RowSelectionState,
   SortingState,
-  ColumnDefBase,
-  AccessorFn,
 } from '@tanstack/react-table';
 import { CSSProperties } from 'react';
 
@@ -295,7 +294,7 @@ export interface TableColumnConfig<TableData>
   // use.
   // LOGZ.IO CHANGE START:: group by array field [APPZ-994]
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  extends Pick<ColumnDefBase<TableData, any>, 'cell' | 'sortingFn'> {
+  extends Pick<ColumnDef<TableData, any>, 'cell' | 'sortingFn' | 'id'> {
   /**
    * Text to display in the header for the column.
    */
