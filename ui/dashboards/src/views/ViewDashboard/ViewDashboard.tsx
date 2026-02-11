@@ -62,6 +62,7 @@ export function ViewDashboard(props: ViewDashboardProps): ReactElement {
     dashboardStoreApiRef,
     onDashboardChange, // LOGZ.IO CHANGE:: Alert users when trying to navigate out of dashboard in edit mode that has changes [APPZ-316]
     dashboardControlsComponent, // LOGZ.IO CHANGE:: Add support for dashboardControlsComponent
+    toolbarAddonComponent, // LOGZ.IO CHANGE:: Support AdHoc filters [APPZ-1228]
     ...others
   } = props;
   const { spec } = dashboardResource;
@@ -153,6 +154,7 @@ export function ViewDashboard(props: ViewDashboardProps): ReactElement {
                   isDatasourceEnabled={isDatasourceEnabled}
                   isCreating={isCreating}
                   dashboardControlsComponent={dashboardControlsComponent}
+                  toolbarAddonComponent={toolbarAddonComponent} // LOGZ.IO CHANGE:: Support AdHoc filters [APPZ-1228]
                   isInitialVariableSticky={isInitialVariableSticky}
                   isLeavingConfirmDialogEnabled={isLeavingConfirmDialogEnabled}
                   dashboardTitleComponent={dashboardTitleComponent}
