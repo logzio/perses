@@ -33,7 +33,7 @@ export const variableDisplaySchema: z.ZodSchema<VariableDisplay> = z.object({
 export const variableListSpecSchema: z.ZodSchema<ListVariableSpec> = z.object({
   name: z.string().min(1),
   display: variableDisplaySchema.optional(),
-  defaultValue: z.string().or(z.array(z.string())).optional(),
+  defaultValue: z.string().or(z.array(z.string())).nullable().optional(),
   allowAllValue: z.boolean(),
   allowMultiple: z.boolean(),
   customAllValue: z.string().optional(),
@@ -56,7 +56,7 @@ export function buildVariableListSpecSchema(pluginSchema: PluginSchema): z.ZodSc
   return z.object({
     name: z.string().min(1),
     display: variableDisplaySchema.optional(),
-    defaultValue: z.string().or(z.array(z.string())).optional(),
+    defaultValue: z.string().or(z.array(z.string())).nullable().optional(),
     allowAllValue: z.boolean(),
     allowMultiple: z.boolean(),
     customAllValue: z.string().optional(),
