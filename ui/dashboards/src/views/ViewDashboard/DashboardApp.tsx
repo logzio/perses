@@ -43,6 +43,7 @@ export interface DashboardAppProps {
   // If true, browser confirmation dialog will be shown when navigating away with unsaved changes (closing tab, ...).
   isLeavingConfirmDialogEnabled?: boolean;
   dashboardTitleComponent?: ReactNode;
+  toolbarAddonComponent?: ReactNode; // LOGZ.IO CHANGE:: Support AdHoc filters [APPZ-1228]
   onSave?: OnSaveDashboard;
   onDiscard?: (entity: DashboardResource) => void;
   onDashboardChange?: (dashboard: DashboardResource) => void; // LOGZ.IO CHANGE:: Alert users when trying to navigate out of dashboard in edit mode that has changes [APPZ-316]
@@ -62,6 +63,7 @@ export const DashboardApp = (props: DashboardAppProps): ReactElement => {
     onSave,
     onDiscard,
     dashboardControlsComponent, // LOGZ.IO CHANGE:: Add support for dashboardControlsComponent
+    toolbarAddonComponent, // LOGZ.IO CHANGE:: Support AdHoc filters [APPZ-1228]
     onDashboardChange, // LOGZ.IO CHANGE:: Alert users when trying to navigate out of dashboard in edit mode that has changes [APPZ-316]
   } = props;
 
@@ -138,6 +140,7 @@ export const DashboardApp = (props: DashboardAppProps): ReactElement => {
         onEditButtonClick={onEditButtonClick}
         onCancelButtonClick={onCancelButtonClick}
         dashboardControlsComponent={dashboardControlsComponent}
+        toolbarAddonComponent={toolbarAddonComponent} // LOGZ.IO CHANGE:: Support AdHoc filters [APPZ-1228]
       />
       <Box
         sx={{

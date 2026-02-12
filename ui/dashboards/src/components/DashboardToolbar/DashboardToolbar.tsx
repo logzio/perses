@@ -37,6 +37,7 @@ export interface DashboardToolbarProps {
   onCancelButtonClick: () => void;
   onSave?: OnSaveDashboard;
   dashboardControlsComponent?: JSX.Element;
+  toolbarAddonComponent?: ReactNode; // LOGZ.IO CHANGE:: Add support for toolbarAddonComponent
 }
 
 export const DashboardToolbar = (props: DashboardToolbarProps): ReactElement => {
@@ -51,6 +52,7 @@ export const DashboardToolbar = (props: DashboardToolbarProps): ReactElement => 
     onCancelButtonClick,
     onSave,
     dashboardControlsComponent,
+    toolbarAddonComponent,
   } = props;
 
   const { isEditMode } = useEditMode();
@@ -121,6 +123,7 @@ export const DashboardToolbar = (props: DashboardToolbarProps): ReactElement => 
           <Box width="100%">
             <ErrorBoundary FallbackComponent={ErrorAlert}>
               <DashboardStickyToolbar
+                toolbarAddonComponent={toolbarAddonComponent} // LOGZ.IO CHANGE:: Support AdHoc filters [APPZ-1228]
                 initialVariableIsSticky={initialVariableIsSticky}
                 sx={{
                   backgroundColor: ({ palette }) => palette.background.default,
