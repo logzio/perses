@@ -58,9 +58,7 @@ export interface BuiltinVariableDefinition extends Definition<BuiltinVariableSpe
 export interface BuiltinVariableSpec extends VariableSpec {
   value: () => string;
   source: string;
-  // LOGZ.IO CHANGE START:: unidash add tooltips to make features more clear to users [APPZ-348]
-  sourceDescription?: string;
-  // LOGZ.IO CHANGE END:: unidash add tooltips to make features more clear to users [APPZ-348]
+  sourceDescription?: string; // LOGZ.IO CHANGE:: unidash add tooltips to make features more clear to users [APPZ-348]
 }
 
 export type VariableDefinition = TextVariableDefinition | ListVariableDefinition;

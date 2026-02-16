@@ -30,6 +30,7 @@ export interface PanelContentProps extends Omit<PanelProps<UnknownSpec>, 'queryR
  */
 export function PanelContent(props: PanelContentProps): ReactElement {
   const { panelPluginKind, definition, queryResults, spec, contentDimensions } = props;
+  console.log('🚀 ~ PanelContent ~ queryResults:', queryResults);
   const { data: plugin, isLoading: isPanelLoading } = usePlugin('Panel', panelPluginKind, { throwOnError: true }); // LOGZIO CHANGE: `useErrorBoundary` was changed to `throwOnError` for tanstack query v4 -> v5 support
 
   // Render the panel if any query has data, or the panel doesn't have a query attached (for example MarkdownPanel).
@@ -37,15 +38,13 @@ export function PanelContent(props: PanelContentProps): ReactElement {
   const queryResultsWithData = useMemo(
     () =>
       queryResults.flatMap((q) =>
-        q.data && !q.definition?.spec?.hidden ? [{ data: q.data, definition: q.definition }] : []
+        q.data && !q.definition?.hidden ? [{ data: q.data, definition: q.definition }] : []
       ),
     [queryResults]
   );
+  console.log('🚀 ~ PanelContent ~ queryResultsWithData:', queryResultsWithData);
 
-  const areAllQueriesHidden = useMemo(
-    () => queryResults.every((q) => q.definition?.spec?.hidden ?? false),
-    [queryResults]
-  );
+  const areAllQueriesHidden = useMemo(() => queryResults.every((q) => q.definition?.hidden ?? false), [queryResults]);
 
   // Show fullsize skeleton if the panel plugin is loading.
   if (isPanelLoading) {

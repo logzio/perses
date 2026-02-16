@@ -89,7 +89,7 @@ export const QueryEditorContainer = forwardRef<PluginEditorRef, QueryEditorConta
               <Typography variant="overline" component="h4">
                 Query #{index + 1}
               </Typography>
-              {query.spec.hidden && (
+              {query.hidden && (
                 <Typography variant="caption" color="secondary" component="span" fontStyle="italic">
                   Disabled
                 </Typography>

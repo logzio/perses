@@ -82,8 +82,8 @@ export function DataQueriesProvider(props: DataQueriesProviderProps): ReactEleme
           kind: type,
           spec: {
             plugin: definition,
-            hidden: definition.hidden ?? false, // LOGZ.IO CHANGE:: APPZ-955-math-on-queries-formulas
           },
+          hidden: definition.hidden ?? false, // LOGZ.IO CHANGE:: APPZ-955-math-on-queries-formulas
         };
       }),
     [definitions, getQueryType]
