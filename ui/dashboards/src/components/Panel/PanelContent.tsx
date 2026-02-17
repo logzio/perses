@@ -41,7 +41,6 @@ export function PanelContent(props: PanelContentProps): ReactElement {
       ),
     [queryResults]
   );
-  console.log('🚀 ~ PanelContent ~ queryResultsWithData:', queryResultsWithData);
 
   const areAllQueriesHidden = useMemo(() => queryResults.every((q) => q.definition?.hidden ?? false), [queryResults]);
 
