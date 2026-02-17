@@ -133,7 +133,7 @@ export const MultiQueryEditor = forwardRef<PluginEditorRef, MultiQueryEditorProp
         produce(queries, (draft) => {
           const entry = draft?.[index];
           if (entry) {
-            entry.spec.hidden = !isHidden;
+            entry.hidden = !isHidden;
           }
         })
       );
@@ -169,7 +169,7 @@ export const MultiQueryEditor = forwardRef<PluginEditorRef, MultiQueryEditorProp
             queryResult={queryResults?.[i]}
             filteredQueryPlugins={filteredQueryPlugins}
             isCollapsed={!!queriesCollapsed[i]}
-            isHidden={query.spec.hidden ?? false}
+            isHidden={query.hidden ?? false}
             onChange={handleQueryChange}
             onDelete={queries.length > 1 ? handleQueryDelete : undefined}
             onVisibilityToggle={handleVisibilityToggle}

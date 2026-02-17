@@ -39,7 +39,10 @@ export function getQueryOptions(
 
   const filteredVariabledState = filterVariableStateMap(variableState, variableDependencies);
   const variablesValueKey = getVariableValuesKey(filteredVariabledState);
-  const definitionQueryKey: TimeSeriesQueryDefinition = { ...definition, spec: { plugin: definition.spec.plugin } };
+  const definitionQueryKey: TimeSeriesQueryDefinition = {
+    kind: definition.kind,
+    spec: definition.spec,
+  };
 
   const queryKey = [
     'query',
