@@ -90,7 +90,7 @@ export function GridItemContent(props: GridItemContentProps): ReactElement {
         return {
           kind: query.spec.plugin.kind,
           spec: query.spec.plugin.spec,
-          hidden: query.hidden ?? false, // LOGZ.IO CHANGE:: APPZ-955-math-on-queries-formulas
+          hidden: query.spec.hidden ?? false, // LOGZ.IO CHANGE:: APPZ-955-math-on-queries-formulas
         };
       }),
     [queries]
