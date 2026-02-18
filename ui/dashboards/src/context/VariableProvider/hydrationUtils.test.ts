@@ -147,4 +147,50 @@ describe('hydrateVariableStates', () => {
       overridden: false,
     });
   });
+  // LOGZ.IO CHANGE START:: APPZ-2108-renaming-account-breaks-dashboards
+
+  test('uses defaultValue when initialValues is empty (simulates setVariableDefinitions re-hydration)', () => {
+    const definitions: VariableDefinition[] = [
+      {
+        kind: 'ListVariable',
+        spec: {
+          name: 'datasource',
+          display: { name: 'Datasource', hidden: false },
+          allowAllValue: false,
+          allowMultiple: false,
+          defaultValue: 'prom-34',
+          plugin: {
+            kind: 'StaticListVariable',
+            spec: { values: ['prom-12', 'prom-34'] },
+          },
+        },
+      },
+    ];
+
+    const result = hydrateVariableDefinitionStates(definitions, {});
+    expect(result.get({ name: 'datasource' })?.value).toEqual('prom-34');
+  });
+
+  test('initialValues override defaultValue when present', () => {
+    const definitions: VariableDefinition[] = [
+      {
+        kind: 'ListVariable',
+        spec: {
+          name: 'datasource',
+          display: { name: 'Datasource', hidden: false },
+          allowAllValue: false,
+          allowMultiple: false,
+          defaultValue: 'prom-34',
+          plugin: {
+            kind: 'StaticListVariable',
+            spec: { values: ['prom-12', 'prom-34'] },
+          },
+        },
+      },
+    ];
+
+    const staleParams = { datasource: 'prom-12' };
+    const result = hydrateVariableDefinitionStates(definitions, staleParams);
+    expect(result.get({ name: 'datasource' })?.value).toEqual('prom-12');
+  });
 });
