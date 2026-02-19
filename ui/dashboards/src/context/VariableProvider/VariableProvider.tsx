@@ -353,9 +353,11 @@ function createVariableDefinitionStore({
           set(
             (state) => {
               state.variableDefinitions = definitions;
-              // LOGZ.IO CHANGE START:: APPZ-2108-renaming-account-breaks-dashboards
-              state.variableState = hydrateVariableDefinitionStates(definitions, {}, externalVariableDefinitions);
-              // LOGZ.IO CHANGE END:: APPZ-2108-renaming-account-breaks-dashboards
+              state.variableState = hydrateVariableDefinitionStates(
+                definitions,
+                initialParams,
+                externalVariableDefinitions
+              );
             },
             false,
             '[Variables] setVariableDefinitions'
