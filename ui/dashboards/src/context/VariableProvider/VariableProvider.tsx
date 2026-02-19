@@ -360,7 +360,7 @@ function createVariableDefinitionStore({
               );
             },
             false,
-            '[Variables] setVariableDefinitions'
+            '[Variables] setVariableDefinitions' // Used for action name in Redux devtools
           );
         },
         setVariableOptions(name, options, source?: string): void {
