@@ -41,7 +41,7 @@ require (
 	github.com/stretchr/testify v1.11.1
 	github.com/tidwall/gjson v1.18.0
 	github.com/zitadel/oidc/v3 v3.44.0
-	golang.org/x/crypto v0.41.0
+	golang.org/x/crypto v0.52.0
 	golang.org/x/exp v0.0.0-20250819193227-8b4c13bb791b
 	golang.org/x/mod v0.27.0
 	golang.org/x/oauth2 v0.30.0
