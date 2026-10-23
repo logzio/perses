@@ -43,7 +43,7 @@
     "react-social-login-buttons": "^3.9.1",
     "use-immer": "^0.11.0",
     "use-resize-observer": "^9.0.0",
-    "zod": "^3.21.4"
+    "zod": "^4.6.6"
   },
   "devDependencies": {
     "@rspack/cli": "^1.4.11",
