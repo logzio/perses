@@ -37,7 +37,7 @@
     "nuqs": "^2.5.1",
     "react-hook-form": "^7.46.1",
     "use-immer": "^0.11.0",
-    "zod": "^3.22.2"
+    "zod": "^4.6.6"
   },
   "peerDependencies": {
     "@mui/material": "^6.1.10",
