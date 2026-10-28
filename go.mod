@@ -25,7 +25,7 @@ require (
 	github.com/jackc/pgx/v5 v5.7.5
 	github.com/kylelemons/godebug v1.1.0
 	github.com/labstack/echo-jwt/v4 v4.3.1
-	github.com/labstack/echo/v4 v4.13.4
+	github.com/labstack/echo/v4 v4.15.2
 	github.com/mholt/archives v0.1.3
 	github.com/nexucis/lamenv v0.5.2
 	github.com/olekukonko/tablewriter v1.0.9
